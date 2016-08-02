@@ -21,7 +21,6 @@ namespace MySqlDAL
         }
 
         //[Required]
-        [ForeignKey("CreatedBy")]
         [StringLength(50)]
         public string UserName
         {
@@ -32,21 +31,12 @@ namespace MySqlDAL
         {
             get; set;
         }
+       
 
-
-        public virtual ICollection<Post> Posts
-        {
-            get; set;
-        } = new HashSet<Post>();
-
-        public virtual UserName CreatedBy
-        {
-            get; set;
-        }
 
         public override string ToString()
         {
-            return $"ThreadId: {ThreadId}, ThreadName: {ThreadName}, UserName: {UserName}, IsThreadPoll: {IsThreadPoll}, Posts: {Posts}, CreatedBy: {CreatedBy}";
+            return $"ThreadId: {ThreadId}, ThreadName: {ThreadName}, UserName: {UserName}, IsThreadPoll: {IsThreadPoll}";
         }
     }
 }

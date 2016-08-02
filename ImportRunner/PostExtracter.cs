@@ -60,10 +60,11 @@ namespace ImportRunner
             {
                 foreach (HtmlNode post in posts)
                 {
-                    var item = post.Attributes["id"]?.Value;
+                    HtmlNode separatedNode = HtmlNode.CreateNode(post.OuterHtml);
+                    var item = separatedNode.Attributes["id"]?.Value;
                     
-                    HtmlNode node = HtmlNode.CreateNode(post.OuterHtml); // clear the old stuff
-                    string date = node.GetNodesByTagAndValue("span", "date", "class").First().InnerText.Trim().Replace("&nbsp;",String.Empty).Replace(",", " ");
+                    
+                    string date = separatedNode.GetNodesByTagAndValue("span", "date", "class").First().InnerText.Trim().Replace("&nbsp;",String.Empty).Replace(",", " ");
                     //string time = node.GetNodesByTagAndValue("span", "time", "class").First().InnerText.Trim();
                     //04-14-2015 01:35 PM
                     Post p = new Post();
@@ -73,10 +74,10 @@ namespace ImportRunner
                         DateTime createdOn = DateTime.Parse(date);
                         p.PostDate = createdOn;
                     }
-                    string userName = post.GetNodesByTagAndValue("a", "username", "class").FirstOrDefault()?.InnerText ??
-                                      post.GetNodesByTagAndValue("span", "username", "class").FirstOrDefault()?.InnerText;
+                    string userName = separatedNode.GetNodesByTagAndValue("a", "username", "class").FirstOrDefault()?.InnerText ??
+                                      separatedNode.GetNodesByTagAndValue("span", "username", "class").FirstOrDefault()?.InnerText;
                     p.UserName = userName;
-                    p.PostContent = post.SelectSingleNode("//blockquote").OuterHtml;
+                    p.PostContent = separatedNode.SelectSingleNode("//blockquote").OuterHtml;
                     p.ThreadName = Thread.ThreadName;
                     if ((item != null) && !item.IsNullOrEmpty())
                     {

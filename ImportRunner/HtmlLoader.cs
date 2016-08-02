@@ -24,6 +24,7 @@ namespace ImportRunner
             string s;
             using (var context = new DenormalizeContext())
             {
+                PostList = new HashSet<int>(context.Posts.Select(c=>c.PostId));
                 foreach (FileInfo file in dir.EnumerateFiles("showthread*.html"))
                 {
                     //Console.WriteLine($"{file.Name}");
@@ -40,11 +41,19 @@ namespace ImportRunner
             }
         }
 
+        private HashSet<int> PostList
+        {
+            get;
+            set;
+        }
+
         private void SaveData(PostExtracter pst, DenormalizeContext context)
         {
             // here we save into EF
-            context.Posts.AddRange(pst.Posts);
+            HashSet<int> listToAdd = new HashSet<int>(pst.Posts.Where(c => !PostList.Contains(c.PostId)).Select(c=>c.PostId));
+            context.Posts.AddRange(pst.Posts.Where(c => listToAdd.Contains(c.PostId)));
             context.SaveChanges();
+            PostList.UnionWith(listToAdd);
             context.DetachAllEntities();
             
         }

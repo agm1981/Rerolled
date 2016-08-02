@@ -10,6 +10,7 @@ namespace MySqlDAL
         public DenormalizeContext()
             : base("name=Denormalize")
         {
+
         }
 
         public virtual DbSet<Post> Posts
@@ -22,7 +23,7 @@ namespace MySqlDAL
             get; set;
         }
 
-        public virtual DbSet<UserName> UserNames
+        public virtual DbSet<UserProfile> UserProfiles
         {
             get; set;
         }
