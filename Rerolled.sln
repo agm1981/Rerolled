@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "MySqlDAL\Common.csproj", "{C69BE2D7-B659-47D8-918C-10C26A36EABB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImportRunner", "ImportRunner\ImportRunner.csproj", "{789CA07E-C1C9-4DC9-832E-2B751908BC98}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C69BE2D7-B659-47D8-918C-10C26A36EABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C69BE2D7-B659-47D8-918C-10C26A36EABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C69BE2D7-B659-47D8-918C-10C26A36EABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C69BE2D7-B659-47D8-918C-10C26A36EABB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{789CA07E-C1C9-4DC9-832E-2B751908BC98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{789CA07E-C1C9-4DC9-832E-2B751908BC98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{789CA07E-C1C9-4DC9-832E-2B751908BC98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{789CA07E-C1C9-4DC9-832E-2B751908BC98}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
