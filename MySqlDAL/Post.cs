@@ -13,16 +13,9 @@ namespace MySqlDAL
         {
             get; set;
         }
-
-        [ForeignKey("Thread")]
-        public int ThreadId
-        {
-            get; set;
-        }
-
+       
         [Required]
         [StringLength(50)]
-        [ForeignKey("CreatedBy")]
         public string UserName
         {
             get; set;
@@ -40,13 +33,16 @@ namespace MySqlDAL
             get; set;
         }
 
-        public virtual Thread Thread { get; set; }
-
-        public virtual UserName CreatedBy { get; set; }
-
+        [Required]
+        public string ThreadName
+        {
+            get;
+            set;
+        }
+        
         public override string ToString()
         {
-            return $"PostId: {PostId}, ThreadId: {ThreadId}, UserName: {UserName}, PostContent: {PostContent}, PostDate: {PostDate}, Thread: {Thread}, CreatedBy: {CreatedBy}";
+            return $"PostId: {PostId}, UserName: {UserName}, PostContent: {PostContent}, PostDate: {PostDate}";
         }
     }
 }

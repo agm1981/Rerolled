@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using Fizzler.Systems.HtmlAgilityPack;
 using HtmlAgilityPack;
 using MySqlDAL;
@@ -16,6 +17,12 @@ namespace ImportRunner
         public string Html
         {
             get; set;
+        }
+
+        public string FileName
+        {
+            get;
+            set;
         }
 
         public Thread Thread
@@ -53,6 +60,8 @@ namespace ImportRunner
             {
                 foreach (HtmlNode post in posts)
                 {
+                    var item = post.Attributes["id"]?.Value;
+                    
                     HtmlNode node = HtmlNode.CreateNode(post.OuterHtml); // clear the old stuff
                     string date = node.GetNodesByTagAndValue("span", "date", "class").First().InnerText.Trim().Replace("&nbsp;",String.Empty).Replace(",", " ");
                     //string time = node.GetNodesByTagAndValue("span", "time", "class").First().InnerText.Trim();
@@ -60,13 +69,24 @@ namespace ImportRunner
                     Post p = new Post();
                     if (!date.IsNullOrEmpty())
                     {
+                        date = date.Replace("Yesterday", "07-30-2016").Replace("Today", "07-31-2016");
                         DateTime createdOn = DateTime.Parse(date);
                         p.PostDate = createdOn;
                     }
-                    string userName = post.GetNodesByTagAndValue("a", "username", "class").First().InnerText;
+                    string userName = post.GetNodesByTagAndValue("a", "username", "class").FirstOrDefault()?.InnerText ??
+                                      post.GetNodesByTagAndValue("span", "username", "class").FirstOrDefault()?.InnerText;
                     p.UserName = userName;
                     p.PostContent = post.SelectSingleNode("//blockquote").OuterHtml;
-                    p.Thread = Thread;
+                    p.ThreadName = Thread.ThreadName;
+                    if ((item != null) && !item.IsNullOrEmpty())
+                    {
+                        p.PostId= int.Parse(item.Replace("post_", ""));
+                    }
+                    if (userName == null || p.PostContent == null || p.PostDate == DateTime.MinValue ||
+                        p.PostId == default(int))
+                    {
+                        throw new Exception("failure parsing");
+                    }
                     Posts.Add(p);
                 }
             }
