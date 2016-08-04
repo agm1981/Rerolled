@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "MySqlDAL\Common.c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImportRunner", "ImportRunner\ImportRunner.csproj", "{789CA07E-C1C9-4DC9-832E-2B751908BC98}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomScrapper", "CustomScrapper\CustomScrapper.csproj", "{01DDB806-CB2E-49D5-8B7E-BA2A490402B0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{789CA07E-C1C9-4DC9-832E-2B751908BC98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{789CA07E-C1C9-4DC9-832E-2B751908BC98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{789CA07E-C1C9-4DC9-832E-2B751908BC98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01DDB806-CB2E-49D5-8B7E-BA2A490402B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01DDB806-CB2E-49D5-8B7E-BA2A490402B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01DDB806-CB2E-49D5-8B7E-BA2A490402B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01DDB806-CB2E-49D5-8B7E-BA2A490402B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
