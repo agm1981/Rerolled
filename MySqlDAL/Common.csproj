@@ -7,8 +7,8 @@
     <ProjectGuid>{C69BE2D7-B659-47D8-918C-10C26A36EABB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MySqlDAL</RootNamespace>
-    <AssemblyName>MySqlDAL</AssemblyName>
+    <RootNamespace>Common</RootNamespace>
+    <AssemblyName>Common</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -48,19 +48,23 @@
       <HintPath>..\packages\MySql.ConnectorNET.Data.6.8.3.2\lib\net45\MySql.Data.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="MySql.Data.Entity.EF6, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
-      <HintPath>..\packages\MySql.ConnectorNET.Entity.6.8.3.2\lib\net45\MySql.Data.Entity.EF6.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Interactive, Version=3.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Interactive.3.0.0\lib\net45\System.Interactive.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Transactions" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -69,7 +73,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Denormalize.cs" />
+    <Compile Include="DataLayer\AllPostsRepository.cs" />
+    <Compile Include="DataLayer\BaseRepository.cs" />
+    <Compile Include="DataLayer\ColumnMatchingMode.cs" />
+    <Compile Include="DataLayer\ConnectionMonitor.cs" />
+    <Compile Include="DataLayer\ConnectionUtility.cs" />
+    <Compile Include="DataLayer\DbHelper.cs" />
+    <Compile Include="DataLayer\DisposeHelper.cs" />
+    <Compile Include="DataLayer\Extension.cs" />
+    <Compile Include="DataLayer\Extensions.cs" />
+    <Compile Include="DataLayer\MultiSet.cs" />
+    <Compile Include="DataLayer\SafeDataReader.cs" />
+    <Compile Include="DataLayer\SqlBulkCopyExceptionHelper.cs" />
+    <Compile Include="DataLayer\SqlHelper.cs" />
+    <Compile Include="DataLayer\SqlMap.cs" />
+    <Compile Include="DataLayer\SqlMapSet.cs" />
     <Compile Include="Extensions\DateTimeExtentions.cs" />
     <Compile Include="Extensions\EnumerableMethods.cs" />
     <Compile Include="Extensions\EnumerationsHelper.cs" />
@@ -82,11 +100,6 @@
     <Compile Include="Extensions\StreamExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TimeSpanExtensions.cs" />
-    <Compile Include="Migrations\201608021725556_changes.cs" />
-    <Compile Include="Migrations\201608021725556_changes.Designer.cs">
-      <DependentUpon>201608021725556_changes.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Post.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Thread.cs" />
@@ -96,11 +109,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201608021725556_changes.resx">
-      <DependentUpon>201608021725556_changes.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

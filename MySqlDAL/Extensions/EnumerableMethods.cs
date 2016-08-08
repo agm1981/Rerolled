@@ -8,7 +8,7 @@ using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 
-namespace MySqlDAL.Extensions
+namespace Common.Extensions
 {
     /// <summary>
     /// Extension methods for IEnumerable

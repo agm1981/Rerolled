@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using Fizzler.Systems.HtmlAgilityPack;
 using HtmlAgilityPack;
 
-namespace MySqlDAL.Extensions
+namespace Common.Extensions
 {
     /// <summary>
     /// Extension Methods for String

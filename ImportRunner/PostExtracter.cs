@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using Common;
+using Common.Extensions;
 using Fizzler.Systems.HtmlAgilityPack;
 using HtmlAgilityPack;
-using MySqlDAL;
-using MySqlDAL.Extensions;
 
 namespace ImportRunner
 {
@@ -74,8 +74,25 @@ namespace ImportRunner
                         DateTime createdOn = DateTime.Parse(date);
                         p.PostDate = createdOn;
                     }
+
+                    
+                    
                     string userName = separatedNode.GetNodesByTagAndValue("a", "username", "class").FirstOrDefault()?.InnerText ??
                                       separatedNode.GetNodesByTagAndValue("span", "username", "class").FirstOrDefault()?.InnerText;
+                    if (userName.Length > 50)
+                    {
+                        // mistake getting the thing, go alternate
+                        string uname =
+                        separatedNode.GetNodesByTagAndValue("a", "username", "class")
+                            .FirstOrDefault()?.GetAttributeValue("title", string.Empty);
+
+                        uname = uname?.Replace("is offline", String.Empty).Replace("is online", String.Empty).TrimSafely();
+                        if (!uname.IsNullOrWhiteSpace())
+                        {
+                            userName = uname;
+                        }
+
+                    }
                     p.UserName = userName;
                     p.PostContent = separatedNode.SelectSingleNode("//blockquote").OuterHtml;
                     p.ThreadName = Thread.ThreadName;

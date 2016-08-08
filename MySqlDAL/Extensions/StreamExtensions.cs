@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace MySqlDAL.Extensions
+namespace Common.Extensions
 {
     public static class StreamExtensions
     {

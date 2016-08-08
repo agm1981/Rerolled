@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using HtmlAgilityPack;
 
-namespace MySqlDAL.Extensions
+namespace Common.Extensions
 {
     public static class HtmlNodeExtensions
     {

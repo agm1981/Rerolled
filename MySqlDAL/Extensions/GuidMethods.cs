@@ -1,6 +1,6 @@
 using System;
 
-namespace MySqlDAL.Extensions
+namespace Common.Extensions
 {
     public static class GuidMethods
     {

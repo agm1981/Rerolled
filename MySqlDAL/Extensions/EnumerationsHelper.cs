@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace MySqlDAL.Extensions
+namespace Common.Extensions
 {
     public static class EnumerationsHelper
     {

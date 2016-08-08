@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 
-namespace MySqlDAL.Extensions
+namespace Common.Extensions
 {
     public static class HttpClientEntensions
     {

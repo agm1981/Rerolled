@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MySqlDAL.Extensions
+namespace Common.Extensions
 {
     public static class GenericExtensions
     {
