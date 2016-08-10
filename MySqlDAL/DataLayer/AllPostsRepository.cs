@@ -52,7 +52,7 @@ namespace Common.DataLayer
                        {
                            c.AddWithValue("@postId", item.PostId);
                            c.AddWithValue("@userName", item.UserName);
-                           c.AddWithValue("@postContent", item.PostId);
+                           c.AddWithValue("@postContent", item.PostContent);
                            c.AddWithValue("@postDate", item.PostDate);
                            c.AddWithValue("@threadName", item.ThreadName);
                        }

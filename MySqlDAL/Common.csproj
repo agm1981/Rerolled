@@ -73,6 +73,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataLayer\AllThreadsRepository.cs" />
     <Compile Include="DataLayer\AllPostsRepository.cs" />
     <Compile Include="DataLayer\BaseRepository.cs" />
     <Compile Include="DataLayer\ColumnMatchingMode.cs" />

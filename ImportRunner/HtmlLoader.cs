@@ -15,17 +15,51 @@ namespace ImportRunner
 {
     public class HtmlLoader
     {
-        private string folderLocation = ConfigurationManager.AppSettings["Folder"];
+        private string folderLocation2 = ConfigurationManager.AppSettings["Folder"];
+        private string folderLocation = ConfigurationManager.AppSettings["Folder2"];
         public void Start()
         {
+            AllPostsRepository repository = new AllPostsRepository();
+            AllThreadsRepository repository2 = new AllThreadsRepository();
+            PostList = new HashSet<int>(repository.GetAllPosts());
+            ThreadNames = new HashSet<string>(repository2.GetAllThreads().Select(c=>c.CombinedName));
             DirectoryInfo dir = new DirectoryInfo(folderLocation);
             if (!dir.Exists)
             {
                 throw new Exception("Missing Folder Or Access");
             }
             string s;
-            AllPostsRepository repository = new AllPostsRepository();
-            PostList = new HashSet<int>(repository.GetAllPosts());
+            
+            foreach (FileInfo file in dir.EnumerateFiles("showthread.php*"))
+            {
+                //Console.WriteLine($"{file.Name}");
+                using (StreamReader sr = file.OpenText())
+                {
+                    s = sr.ReadToEnd();
+                }
+                //PostExtracter pst = new PostExtracter
+                //{
+                //    FileName = file.Name,
+                //    Html = s
+                //};
+                //pst.ExtractPosts();
+                //SaveData(pst, repository);
+                ThreadNameForumExtracter trd = new ThreadNameForumExtracter
+                {
+                    FileName = file.Name,
+                    Html = s
+                };
+                trd.ExtractThreads();
+                SaveThreadData(trd, repository2);
+
+            }
+            dir = new DirectoryInfo(folderLocation2);
+            if (!dir.Exists)
+            {
+                throw new Exception("Missing Folder Or Access");
+            }
+            
+
             foreach (FileInfo file in dir.EnumerateFiles("showthread*.html"))
             {
                 //Console.WriteLine($"{file.Name}");
@@ -33,18 +67,34 @@ namespace ImportRunner
                 {
                     s = sr.ReadToEnd();
                 }
-                PostExtracter pst = new PostExtracter
+                //PostExtracter pst = new PostExtracter
+                //{
+                //    FileName = file.Name,
+                //    Html = s
+                //};
+                //pst.ExtractPosts();
+                //SaveData(pst, repository);
+
+                ThreadNameForumExtracter trd = new ThreadNameForumExtracter
                 {
                     FileName = file.Name,
                     Html = s
                 };
-                pst.ExtractPosts();
-                SaveData(pst, repository);
+                trd.ExtractThreads();
+                SaveThreadData(trd, repository2);
+
+
             }
 
         }
 
         private HashSet<int> PostList
+        {
+            get;
+            set;
+        }
+
+        private HashSet<string> ThreadNames
         {
             get;
             set;
@@ -62,6 +112,19 @@ namespace ImportRunner
             IEnumerable<Post> postToAdd = pst.Posts.Where(c => listToAdd.Contains(c.PostId));
             repository.Save(postToAdd);
             PostList.UnionWith(listToAdd);
+        }
+        private void SaveThreadData(ThreadNameForumExtracter trd, AllThreadsRepository repository)
+        {
+            // here we save into EF
+
+            bool alreadyThere = ThreadNames.Contains(trd.Thread.CombinedName);
+            if (alreadyThere)
+            {
+                return;
+            }
+            //IEnumerable<Post> postToAdd = trd.Posts.Where(c => listToAdd.Contains(c.PostId));
+            repository.Save(trd.Thread);
+            ThreadNames.Add(trd.Thread.CombinedName);
         }
     }
 }

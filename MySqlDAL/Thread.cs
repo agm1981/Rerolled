@@ -1,39 +1,43 @@
-using System.ComponentModel.DataAnnotations;
 
 namespace Common
 {
     public class Thread
     {
+        public string CombinedName => $"{OldForumName}____{ThreadName}";
 
         public int ThreadId
         {
             get; set;
         }
 
-        [Required]
-        [StringLength(400)]
         public string ThreadName
         {
-            get; set;
+            get;
+            set;
         }
 
-        //[Required]
-        [StringLength(50)]
-        public string UserName
+        public string OldForumName
         {
-            get; set;
+            get;
+            set;
+        }
+        public string NewForumName
+        {
+            get;
+            set;
         }
 
-        public bool? IsThreadPoll
+        public string UserNameStarter
         {
-            get; set;
+            get;
+            set;
         }
-       
+
 
 
         public override string ToString()
         {
-            return $"ThreadId: {ThreadId}, ThreadName: {ThreadName}, UserName: {UserName}, IsThreadPoll: {IsThreadPoll}";
+            return $"ThreadId: {ThreadId}, ThreadName: {ThreadName}, UserName: {UserNameStarter}";
         }
     }
 }

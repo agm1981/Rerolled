@@ -10,7 +10,8 @@ namespace ImportRunner
     {
         static void Main(string[] args)
         {
-            new HtmlLoader().Start();
+            //new HtmlLoader().Start();
+            var test  = new ContentConverter().ConvertContent();
         }
     }
 }
