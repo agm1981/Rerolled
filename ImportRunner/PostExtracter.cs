@@ -70,7 +70,7 @@ namespace ImportRunner
                     Post p = new Post();
                     if (!date.IsNullOrEmpty())
                     {
-                        date = date.Replace("Yesterday", "07-30-2016").Replace("Today", "07-31-2016");
+                        date = date.Replace("Yesterday", "08-10-2016").Replace("Today", "08-11-2016");
                         DateTime createdOn = DateTime.Parse(date);
                         p.PostDate = createdOn;
                     }

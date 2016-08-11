@@ -15,8 +15,8 @@ namespace ImportRunner
 {
     public class HtmlLoader
     {
-        private string folderLocation2 = ConfigurationManager.AppSettings["Folder"];
-        private string folderLocation = ConfigurationManager.AppSettings["Folder2"];
+        //private string folderLocation2 = ConfigurationManager.AppSettings["Folder2"];
+        private string folderLocation = ConfigurationManager.AppSettings["Folder"];
         public void Start()
         {
             AllPostsRepository repository = new AllPostsRepository();
@@ -30,36 +30,6 @@ namespace ImportRunner
             }
             string s;
             
-            foreach (FileInfo file in dir.EnumerateFiles("showthread.php*"))
-            {
-                //Console.WriteLine($"{file.Name}");
-                using (StreamReader sr = file.OpenText())
-                {
-                    s = sr.ReadToEnd();
-                }
-                //PostExtracter pst = new PostExtracter
-                //{
-                //    FileName = file.Name,
-                //    Html = s
-                //};
-                //pst.ExtractPosts();
-                //SaveData(pst, repository);
-                ThreadNameForumExtracter trd = new ThreadNameForumExtracter
-                {
-                    FileName = file.Name,
-                    Html = s
-                };
-                trd.ExtractThreads();
-                SaveThreadData(trd, repository2);
-
-            }
-            dir = new DirectoryInfo(folderLocation2);
-            if (!dir.Exists)
-            {
-                throw new Exception("Missing Folder Or Access");
-            }
-            
-
             foreach (FileInfo file in dir.EnumerateFiles("showthread*.html"))
             {
                 //Console.WriteLine($"{file.Name}");
@@ -67,14 +37,13 @@ namespace ImportRunner
                 {
                     s = sr.ReadToEnd();
                 }
-                //PostExtracter pst = new PostExtracter
-                //{
-                //    FileName = file.Name,
-                //    Html = s
-                //};
-                //pst.ExtractPosts();
-                //SaveData(pst, repository);
-
+                PostExtracter pst = new PostExtracter
+                {
+                    FileName = file.Name,
+                    Html = s
+                };
+                pst.ExtractPosts();
+                SaveData(pst, repository);
                 ThreadNameForumExtracter trd = new ThreadNameForumExtracter
                 {
                     FileName = file.Name,
@@ -83,8 +52,39 @@ namespace ImportRunner
                 trd.ExtractThreads();
                 SaveThreadData(trd, repository2);
 
-
             }
+        //    dir = new DirectoryInfo(folderLocation2);
+        //    if (!dir.Exists)
+        //    {
+        //        throw new Exception("Missing Folder Or Access");
+        //    }
+            
+
+        //    foreach (FileInfo file in dir.EnumerateFiles("showthread*.html"))
+        //    {
+        //        //Console.WriteLine($"{file.Name}");
+        //        using (StreamReader sr = file.OpenText())
+        //        {
+        //            s = sr.ReadToEnd();
+        //        }
+        //        //PostExtracter pst = new PostExtracter
+        //        //{
+        //        //    FileName = file.Name,
+        //        //    Html = s
+        //        //};
+        //        //pst.ExtractPosts();
+        //        //SaveData(pst, repository);
+
+        //        ThreadNameForumExtracter trd = new ThreadNameForumExtracter
+        //        {
+        //            FileName = file.Name,
+        //            Html = s
+        //        };
+        //        trd.ExtractThreads();
+        //        SaveThreadData(trd, repository2);
+
+
+        //    }
 
         }
 
@@ -122,7 +122,7 @@ namespace ImportRunner
             {
                 return;
             }
-            //IEnumerable<Post> postToAdd = trd.Posts.Where(c => listToAdd.Contains(c.PostId));
+            
             repository.Save(trd.Thread);
             ThreadNames.Add(trd.Thread.CombinedName);
         }

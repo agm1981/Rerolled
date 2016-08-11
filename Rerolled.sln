@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImportRunner", "ImportRunne
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomScrapper", "CustomScrapper\CustomScrapper.csproj", "{01DDB806-CB2E-49D5-8B7E-BA2A490402B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestsCases", "TestsCases\TestsCases.csproj", "{5837A05C-4CA5-453F-A59B-8C64245FD5EA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{01DDB806-CB2E-49D5-8B7E-BA2A490402B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01DDB806-CB2E-49D5-8B7E-BA2A490402B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01DDB806-CB2E-49D5-8B7E-BA2A490402B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5837A05C-4CA5-453F-A59B-8C64245FD5EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5837A05C-4CA5-453F-A59B-8C64245FD5EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5837A05C-4CA5-453F-A59B-8C64245FD5EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5837A05C-4CA5-453F-A59B-8C64245FD5EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
