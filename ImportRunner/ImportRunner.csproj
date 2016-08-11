@@ -62,6 +62,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ContentConverter.cs" />
+    <Compile Include="ConvertMessages.cs" />
     <Compile Include="HtmlLoader.cs" />
     <Compile Include="PostExtracter.cs" />
     <Compile Include="Program.cs" />

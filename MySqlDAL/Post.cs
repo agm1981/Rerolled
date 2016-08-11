@@ -23,6 +23,12 @@ namespace Common
             get; set;
         }
 
+        public string NewPostContent
+        {
+            get; set;
+        }
+
+
         [Required]
         public DateTime PostDate
         {
@@ -38,7 +44,7 @@ namespace Common
         
         public override string ToString()
         {
-            return $"PostId: {PostId}, UserName: {UserName}, PostContent: {PostContent}, PostDate: {PostDate}";
+            return $"PostId: {PostId}, UserName: {UserName}, PostContentLength: {PostContent?.Length}, PostDate: {PostDate}";
         }
     }
 }

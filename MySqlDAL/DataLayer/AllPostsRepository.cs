@@ -15,7 +15,8 @@ namespace Common.DataLayer
            UserName = dr.GetSafe<string>("UserName"),
            PostDate = dr.GetSafe<DateTime>("PostDate"),
             PostContent = dr.GetSafe<string>("PostContent"),
-            ThreadName = dr.GetSafe<string>("PostContent"),
+            ThreadName = dr.GetSafe<string>("ThreadName"),
+            NewPostContent = dr.GetSafe<string>("NewPostContent"),
         };
 
         private Func<IDataReader, int> mapIds = dr => dr.Get<int>("PostId");
@@ -29,21 +30,62 @@ namespace Common.DataLayer
                 mapIds
             );
         }
+        public IEnumerable<int> GetAllPostsToUpdate()
+        {
+            return sqlH.ExecuteSet(
+                CommandType.Text,
+                @"SELECT postId FROM Posts where NewPostContent is null",
+                null,
+                mapIds
+            );
+        }
+
+        public Post GetPost(int postId)
+        {
+            return sqlH.ExecuteSingle(
+                CommandType.Text,
+                @"SELECT * FROM Posts where postId = @postId",
+                c =>
+                {
+                    c.AddWithValue("@postId", postId);
+                },
+                mapPosts
+            );
+        }
 
         public void Save(Post item)
         {
-            string sql = @"INSERT INTO [dbo].[Posts]
+            string sql = @"
+
+                    UPDATE Posts
+                    SET
+                    [UserName] = @UserName
+                    ,[PostContent] = @PostContent
+                    ,[PostDate] = @PostDate
+                    ,[ThreadName] =  @ThreadName
+                    ,[NewPostContent] = @NewPostContent
+                
+                    WHERE postId = @postId
+        
+                 if (SELECT @@ROWCOUNT) = 0
+                    BEGIN
+
+                    INSERT INTO [dbo].[Posts]
                     ([PostId]
                     ,[UserName]
                     ,[PostContent]
                     ,[PostDate]
-                    ,[ThreadName])
+                    ,[ThreadName]
+                    ,[NewPostContent])
                     VALUES
                       (@postId
                        ,@userName
                        ,@postContent
                        ,@postDate
-                       ,@threadName)";
+                       ,@threadName
+                       ,@newPostContent)
+                    END
+                        ";
 
             sqlH.ExecuteNonQuery(
                        CommandType.Text,
@@ -55,6 +97,7 @@ namespace Common.DataLayer
                            c.AddWithValue("@postContent", item.PostContent);
                            c.AddWithValue("@postDate", item.PostDate);
                            c.AddWithValue("@threadName", item.ThreadName);
+                           c.AddWithValue("@newPostContent", item.NewPostContent);
                        }
                    );
         }
