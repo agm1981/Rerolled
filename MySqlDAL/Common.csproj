@@ -84,6 +84,7 @@
     <Compile Include="DataLayer\Extension.cs" />
     <Compile Include="DataLayer\Extensions.cs" />
     <Compile Include="DataLayer\MultiSet.cs" />
+    <Compile Include="DataLayer\MySqlDataConnector.cs" />
     <Compile Include="DataLayer\SafeDataReader.cs" />
     <Compile Include="DataLayer\SqlBulkCopyExceptionHelper.cs" />
     <Compile Include="DataLayer\SqlHelper.cs" />

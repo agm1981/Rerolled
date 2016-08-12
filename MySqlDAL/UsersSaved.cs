@@ -19,6 +19,13 @@ namespace Common
             get;
             set;
         }
+
+        public int NewUserId
+        {
+
+            get;
+            set;
+        }
     }
 }
 
