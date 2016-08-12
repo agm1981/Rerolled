@@ -16,7 +16,9 @@ namespace TestsCases
                     @"<blockquote class=""postcontent restore "">a<a href=""http://arstechnica.com/science/2012/12/nasa-will-send-second-mars-rover-in-2020-send-humans-in-2030s/"" target=""_blank"">link/</a>b</blockquote>"
             };
             var outString = content.ConvertContent();
-            Assert.AreEqual("a[url=http://arstechnica.com/science/2012/12/nasa-will-send-second-mars-rover-in-2020-send-humans-in-2030s/]link/[/url]b", outString);
+            Assert.AreEqual(
+                "a[url=http://arstechnica.com/science/2012/12/nasa-will-send-second-mars-rover-in-2020-send-humans-in-2030s/]link/[/url]b",
+                outString);
         }
 
         [TestMethod]
@@ -32,7 +34,8 @@ namespace TestsCases
 
         [TestMethod]
         public void ThenImgTagsParseProperly()
-        {//
+        {
+            //
             ContentConverter content = new ContentConverter
             {
                 Html =
@@ -58,23 +61,41 @@ namespace TestsCases
 
             content = new ContentConverter
             {
-                Html = @"<blockquote class=""postcontent restore ""><iframe class=""restrain"" title=""YouTube video player"" width=""640"" height=""390"" src=""//www.youtube.com/embed/W2ET8ghJaBE?wmode=opaque"" frameborder=""0""></iframe><iframe class=""restrain"" title=""YouTube video player"" width=""640"" height=""390"" src=""//www.youtube.com/embed/ojpQ3LCeQTY?wmode=opaque"" frameborder=""0""></iframe></blockquote>"
+                Html =
+                    @"<blockquote class=""postcontent restore ""><iframe class=""restrain"" title=""YouTube video player"" width=""640"" height=""390"" src=""//www.youtube.com/embed/W2ET8ghJaBE?wmode=opaque"" frameborder=""0""></iframe><iframe class=""restrain"" title=""YouTube video player"" width=""640"" height=""390"" src=""//www.youtube.com/embed/ojpQ3LCeQTY?wmode=opaque"" frameborder=""0""></iframe></blockquote>"
             };
             outString = content.ConvertContent();
             Assert.AreEqual("[MEDIA=youtube]W2ET8ghJaBE[/MEDIA][MEDIA=youtube]ojpQ3LCeQTY[/MEDIA]", outString);
-
-
         }
 
         [TestMethod]
         public void ThenBTagsParseProperly()
-        {//
+        {
+            //
             ContentConverter content = new ContentConverter
             {
                 Html = @"<blockquote class=""postcontent restore "">a<b>Brutal</b>b</blockquote>"
             };
             var outString = content.ConvertContent();
             Assert.AreEqual("a[b]Brutal[/b]b", outString);
+        }
+
+        [TestMethod]
+        public void ThenVimeoVideosParseProperly()
+        {
+            //
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore "">a<object class=""restrain"" type=""application/x-shockwave-flash"" width=""640"" height=""360"" data=""http://vimeo.com/moogaloop.swf?clip_id=66169135"">
+	<param name=""movie"" value=""http://vimeo.com/moogaloop.swf?clip_id=66169135"">
+	<param name=""wmode"" value=""opaque"">
+	<!--[if IE 6]>
+	<embed width=""640"" height=""360"" type=""application/x-shockwave-flash"" src=""//vimeo.com/moogaloop.swf?clip_id=66169135"" />
+	<![endif]--></object>b</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("a[MEDIA=vimeo]66169135[/MEDIA]b", outString);
         }
 
 
@@ -118,39 +139,65 @@ namespace TestsCases
 </div>I beg to differ.</blockquote>"
             };
             var outString = content.ConvertContent();
-            Assert.AreEqual("a[quote]Let's lift a glass of Kanar to the best ST character of all time.[/quote]I beg to differ.", outString);
-
+            Assert.AreEqual(
+                "a[quote]Let's lift a glass of Kanar to the best ST character of all time.[/quote]I beg to differ.",
+                outString);
+           
         }
 
 
         [TestMethod]
-        public void ThenQuoteWithAuthorTagsParseProperly()
+        public void ThenQuoteWithAuthorTagsWithOutPostIdParseProperly()
         {
             ContentConverter content = new ContentConverter
             {
-                Html = @"<blockquote class=""postcontent restore "">a
-							<div class=""bbcode_container"">
+                Html = @"<blockquote class=""postcontent restore "">a<div class=""bbcode_container"">
 	<div class=""bbcode_quote"">
 		<div class=""quote_container"">
 			<div class=""bbcode_quote_container""></div>
 			
 				<div class=""bbcode_postedby"">
-					<img src=""http://www.rerolled.org/images/misc/quote_icon.png"" alt=""Quote""> Originally Posted by <strong>Flight</strong>
-					<a href=""http://www.rerolled.org/showthread.php?121-Timeline-of-what-happened-on-this-epic-day/page2&amp;p=1149#post1149#post1149"" rel=""nofollow""><img class=""inlineimg"" src=""http://www.rerolled.org/images/buttons/viewpost-right.png"" alt=""View Post""></a>
+					<img src=""images/misc/quote_icon.png"" alt=""Quote"" title=""Quote""> Originally Posted by <strong>Tuco</strong>
+					
 				</div>
-				<div class=""message"">Eomer got Duppin'ed.<br>
-<br>
-/ClayDavis</div>
+				<div class=""message"">Lend Is the best</div>			
+		</div>
+	</div>
+</div>b</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual(
+                @"a[quote='Tuco']Lend Is the best[/quote]b",
+                outString);
+        }
+
+        [TestMethod]
+        public void ThenQuoteWithAuthorAndPostIdTagsParseProperly()
+        {
+            ContentConverter content = new ContentConverter
+            {
+                Html = @"<blockquote class=""postcontent restore "">a<div class=""bbcode_container"">
+	<div class=""bbcode_quote"">
+		<div class=""quote_container"">
+			<div class=""bbcode_quote_container""></div>
+			
+				<div class=""bbcode_postedby"">
+					<img src=""http://www.rerolled.org/images/misc/quote_icon.png"" alt=""Quote""> Originally Posted by <strong>hodj</strong>
+					<a href=""http://www.rerolled.org/showthread.php?1610-Dragon-Age-Inquisition-(Plot-Details-in-Spoilers!)/page27&amp;p=455406#post455406#post455406"" rel=""nofollow""><img class=""inlineimg"" src=""http://www.rerolled.org/images/buttons/viewpost-right.png"" alt=""View Post""></a>
+				</div>
+				<div class=""message"">The primary cause of Bioware going to shit is that they are focused on appealing to as broad a segment of society as possible, which means focusing on stupid shit like romance and flashy press button win bacon gameplay. This isn't remotely debateable. They've said it themselves:</div>
 			
 		</div>
 	</div>
-</div>haha, hardly, I even said &quot;maybe I'm pulling a Duppin&quot; in the post. I guess I just couldn't wrap my mind around someone actually inventing a fucking RAPE PREGNANCY story of all fucking things. It's not like I spent weeks white knighting.<br>
-<br>
-Still. I feel shame.b
-						</blockquote>" };
+</div>b</blockquote>"
+            };
             var outString = content.ConvertContent();
-            Assert.AreEqual("a[quote=\'Flight\']Eomer got Duppin\'ed.\r\n\r\n/ClayDavis[/quote]haha, hardly, I even said \"maybe I\'m pulling a Duppin\" in the post. I guess I just couldn\'t wrap my mind around someone actually inventing a fucking RAPE PREGNANCY story of all fucking things. It\'s not like I spent weeks white knighting.\r\n\r\nStill. I feel shame.b", outString);
-        }
+            Assert.AreEqual(
+                @"a[quote='hodj' pid='455406' dateline='1']The primary cause of Bioware going to shit is that they are focused on appealing to as broad a segment of society as possible, which means focusing on stupid shit like romance and flashy press button win bacon gameplay. This isn't remotely debateable. They've said it themselves:[/quote]b",
+                outString);
+        
+    }
+
 
         [TestMethod]
         public void ThenSpolierTagsParseProperly()

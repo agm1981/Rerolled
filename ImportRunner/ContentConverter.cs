@@ -46,10 +46,18 @@ namespace ImportRunner
             //    _data.Append($"[MEDIA=gfycat]height=320;id={src};width=640[/MEDIA]");
             //    return;
             //}
-            //if (node.Name == "object")
-            //{
-            //    return;
-            //}
+            if (node.Name == "object" && node.GetAttributeValue("data", null)?.Contains("vimeo") == true)
+            {
+                string data = node.GetAttributeValue("data", null);
+                if (data == null)
+                {
+                    throw new Exception("missing Source");
+                }
+                data = data.Substring(data.LastIndexOf("=", StringComparison.OrdinalIgnoreCase) + 1);
+                _data.Append($"[MEDIA=vimeo]{data}[/MEDIA]");
+
+                return;
+            }
             if (node.Name == "a")
             {
                 string src = node.GetAttributeValue("href", null);
@@ -121,7 +129,7 @@ namespace ImportRunner
                 {
                     string userName = HttpUtility.HtmlDecode(separatedNode.SelectSingleNode("/div/div/div/div/strong").InnerText.RemoveEndOfLineCharacter().ReplaceTabsForSingleWhiteSpace().TrimSafely());
 
-                    string postIdRef = node.SelectSingleNode("/div/div/div/div/a")?.GetAttributeValue("href", null);
+                    string postIdRef = node.SelectSingleNode("div/div/div[2]/a")?.GetAttributeValue("href", null);
                     if (postIdRef == null)
                     {
                         _data.Append($"[quote='{userName}']");
