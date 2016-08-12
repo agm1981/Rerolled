@@ -41,7 +41,13 @@ namespace Common
             get;
             set;
         }
-        
+
+        public int? NewPostId
+        {
+            get;
+            set;
+        }
+
         public override string ToString()
         {
             return $"PostId: {PostId}, UserName: {UserName}, PostContentLength: {PostContent?.Length}, PostDate: {PostDate}";

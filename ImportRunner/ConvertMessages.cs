@@ -21,6 +21,7 @@ namespace ImportRunner
             while (check)
             {
                 IEnumerable<int> batchIds = allPostsThatNeedToBeWorkedOn.Take(1000).ToList();
+                Console.WriteLine(allPostsThatNeedToBeWorkedOn.Count);
                 IEnumerable<Post> batchToWork = rep.GetPost(batchIds).ToList();
                 foreach (Post post in batchToWork)
                 {
@@ -29,7 +30,7 @@ namespace ImportRunner
                         Html = post.PostContent
                     }.ConvertContent();
                     post.NewPostContent = newconntet;
-                    rep.SaveNewContentOnly(post);
+                    rep.UpdateNewThreadContentOnly(post);
                 }
                 // check now
                 allPostsThatNeedToBeWorkedOn.RemoveWhere(c => batchIds.Contains(c));

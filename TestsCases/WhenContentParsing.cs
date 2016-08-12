@@ -188,7 +188,7 @@ namespace TestsCases
         }
 
         [TestMethod]
-        public void ThenVideoObjectsWithWebmParseProperly()
+        public void ThenVideoObjectsWithWebmImgurParseProperly()
         {
             //
             ContentConverter content = new ContentConverter
@@ -205,6 +205,71 @@ namespace TestsCases
             };
             var outString = content.ConvertContent();
             Assert.AreEqual("a[MEDIA=imgur]tIoAL6n[/MEDIA]b", outString);
+        }
+
+        [TestMethod]
+        public void ThenVideoObjectsWithWebmParseProperly()
+        {
+            //
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore "">
+							<video width=""600"" height=""472"" controls="""">
+<source src=""http://video.webmfiles.org/big-buck-bunny_trailer.webm"" type=""video/mp4"">
+<source src=""http://video.webmfiles.org/big-buck-bunny_trailer.webm"" type=""video/ogg"">
+<source src=""http://video.webmfiles.org/big-buck-bunny_trailer.webm"" type=""video/webm"">
+<object data=""http://video.webmfiles.org/big-buck-bunny_trailer.webm"" width=""600"" height=""472"">
+<embed src=""http://video.webmfiles.org/big-buck-bunny_trailer.webm"" width=""320"" height=""240"">
+</object> 
+</source></source></source></video>
+						</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("[url]http://video.webmfiles.org/big-buck-bunny_trailer.webm[/url]", outString);
+        }
+
+        [TestMethod]
+        public void ThenVideoObjectsWitWebmbassyParseProperly()
+        {
+            //
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore "">
+							<video width=""600"" height=""472"" controls="""">
+<source src=""http://webmbassy.com/v/looping-skateboarding-dog-skateboard-awesome-13728735343.webm"" type=""video/mp4"">
+<source src=""http://webmbassy.com/v/looping-skateboarding-dog-skateboard-awesome-13728735343.webm"" type=""video/ogg"">
+<source src=""http://webmbassy.com/v/looping-skateboarding-dog-skateboard-awesome-13728735343.webm"" type=""video/webm"">
+<object data=""http://webmbassy.com/v/looping-skateboarding-dog-skateboard-awesome-13728735343.webm"" width=""600"" height=""472"">
+<embed src=""http://webmbassy.com/v/looping-skateboarding-dog-skateboard-awesome-13728735343.webm"" width=""320"" height=""240"">
+</object> 
+</source></source></source></video></blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("[url]http://webmbassy.com/v/looping-skateboarding-dog-skateboard-awesome-13728735343.webm[/url]", outString);
+        }
+
+        [TestMethod]
+        public void ThenVideoObjectsWith4ChanParseProperly()
+        {
+            //
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore "">
+							<video width=""600"" height=""472"" controls="""">
+<source src=""https://i.4cdn.org/tv/1456547016864.webm"" type=""video/mp4"">
+<source src=""https://i.4cdn.org/tv/1456547016864.webm"" type=""video/ogg"">
+<source src=""https://i.4cdn.org/tv/1456547016864.webm"" type=""video/webm"">
+<object data=""https://i.4cdn.org/tv/1456547016864.webm"" width=""600"" height=""472"">
+<embed src=""https://i.4cdn.org/tv/1456547016864.webm"" width=""320"" height=""240"">
+</object> 
+</source></source></source></video>
+						</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("[url]https://i.4cdn.org/tv/1456547016864.webm[/url]", outString);
         }
 
         [TestMethod]
@@ -357,7 +422,45 @@ namespace TestsCases
             var outString = content.ConvertContent();
             Assert.AreEqual("a[MEDIA=gfycat]height=320;id=ScratchyUnpleasantGoitered;width=640[/MEDIA]b", outString);
         }
-        
+
+        [TestMethod]
+        public void ThenImgGifyObjectsWebmParseProperly()
+        {
+            ContentConverter content = new ContentConverter
+            {
+                Html = @"<blockquote class=""postcontent restore "">a<video width=""600"" height=""472"" controls="""">
+<source src=""https://zippy.gfycat.com/GlitteringEntireHoiho.webm"" type=""video/mp4"">
+<source src=""https://zippy.gfycat.com/GlitteringEntireHoiho.webm"" type=""video/ogg"">
+<source src=""https://zippy.gfycat.com/GlitteringEntireHoiho.webm"" type=""video/webm"">
+<object data=""https://zippy.gfycat.com/GlitteringEntireHoiho.webm"" width=""600"" height=""472"">
+<embed src=""https://zippy.gfycat.com/GlitteringEntireHoiho.webm"" width=""320"" height=""240"">
+</object> 
+</source></source></source></video>   </div> </div> </div>b</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("a[MEDIA=gfycat]height=320;id=GlitteringEntireHoiho;width=640[/MEDIA]b", outString);
+        }
+
+        [TestMethod]
+        public void ThenStreamableObjectsParseProperly()
+        {
+            ContentConverter content = new ContentConverter
+            {
+                Html = @"<blockquote class=""postcontent restore "">
+							<video width=""600"" height=""472"" controls="""">
+<source src=""https://cdn.streamable.com/video/mp4/pw7e.mp4"" type=""video/mp4"">
+<source src=""https://cdn.streamable.com/video/mp4/pw7e.mp4"" type=""video/ogg"">
+<source src=""https://cdn.streamable.com/video/mp4/pw7e.mp4"" type=""video/webm"">
+<object data=""https://cdn.streamable.com/video/mp4/pw7e.mp4"" width=""600"" height=""472"">
+<embed src=""https://cdn.streamable.com/video/mp4/pw7e.mp4"" width=""320"" height=""240"">
+</object> 
+</source></source></source></video>
+						</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("[url]https://cdn.streamable.com/video/mp4/pw7e.mp4[/url]", outString);
+        }
+
         [TestMethod]
         public void ThenTextSpansParseProperly()
         {

@@ -10,13 +10,15 @@ namespace Common.DataLayer
 {
     public class AllPostsRepository : BaseRepository
     {
-        private Func<IDataReader, Post > mapPosts = dr => new Post { 
-           PostId = dr.Get<int>("PostId"),
-           UserName = dr.GetSafe<string>("UserName"),
-           PostDate = dr.GetSafe<DateTime>("PostDate"),
+        private Func<IDataReader, Post> mapPosts = dr => new Post
+        {
+            PostId = dr.Get<int>("PostId"),
+            UserName = dr.GetSafe<string>("UserName"),
+            PostDate = dr.GetSafe<DateTime>("PostDate"),
             PostContent = dr.GetSafe<string>("PostContent"),
             ThreadName = dr.GetSafe<string>("ThreadName"),
             NewPostContent = dr.GetSafe<string>("NewPostContent"),
+            NewPostId = dr.GetSafe<int?>("NewPostId"),
         };
 
         private Func<IDataReader, int> mapIds = dr => dr.Get<int>("PostId");
@@ -44,13 +46,13 @@ namespace Common.DataLayer
         {
             IEnumerable<int> enumerable = postIds as int[] ?? postIds.ToArray();
             string cmd = SqlHelper.InClause(@"SELECT * FROM Posts where postId in ({0})", enumerable);
-            
+
             return sqlH.ExecuteSet(
                CommandType.Text,
                cmd,
                 c =>
                 {
-                     SqlHelper.InParameters(c, enumerable);
+                    SqlHelper.InParameters(c, enumerable);
                 },
                mapPosts
            );
@@ -73,35 +75,35 @@ namespace Common.DataLayer
         {
             string sql = @"
 
-                    UPDATE Posts
-                    SET
-                    [UserName] = @UserName
-                    ,[PostContent] = @PostContent
-                    ,[PostDate] = @PostDate
-                    ,[ThreadName] =  @ThreadName
-                    ,[NewPostContent] = @NewPostContent
+                UPDATE Posts
+                SET
+                [UserName] = @UserName
+                ,[PostContent] = @PostContent
+                ,[PostDate] = @PostDate
+                ,[ThreadName] =  @ThreadName
+                ,[NewPostContent] = @NewPostContent
                 
-                    WHERE postId = @postId
+                WHERE postId = @postId
         
-                 if (SELECT @@ROWCOUNT) = 0
-                    BEGIN
+                if (SELECT @@ROWCOUNT) = 0
+                BEGIN
 
-                    INSERT INTO [dbo].[Posts]
-                    ([PostId]
-                    ,[UserName]
-                    ,[PostContent]
-                    ,[PostDate]
-                    ,[ThreadName]
-                    ,[NewPostContent])
-                    VALUES
-                      (@postId
-                       ,@userName
-                       ,@postContent
-                       ,@postDate
-                       ,@threadName
-                       ,@newPostContent)
-                    END
-                        ";
+                INSERT INTO [dbo].[Posts]
+                ([PostId]
+                ,[UserName]
+                ,[PostContent]
+                ,[PostDate]
+                ,[ThreadName]
+                ,[NewPostContent])
+                VALUES
+                    (@postId
+                    ,@userName
+                    ,@postContent
+                    ,@postDate
+                    ,@threadName
+                    ,@newPostContent)
+                END
+                    ";
 
             sqlH.ExecuteNonQuery(
                        CommandType.Text,
@@ -126,24 +128,43 @@ namespace Common.DataLayer
             }
         }
 
-        public void SaveNewContentOnly(Post item)
+        public void UpdateNewThreadContentOnly(Post item)
         {
             string sql = @"
-                    UPDATE Posts
-                    SET                
-                    [NewPostContent] = @NewPostContent                
-                    WHERE postId = @postId
-                        ";
+                UPDATE Posts
+                SET                
+                [NewPostContent] = @NewPostContent                
+                WHERE postId = @postId
+                    ";
 
             sqlH.ExecuteNonQuery(
-                       CommandType.Text,
-                       sql,
-                       c =>
-                       {
-                           c.AddWithValue("@postId", item.PostId);
-                           c.AddWithValue("@newPostContent", item.NewPostContent);
-                       }
-                   );
+                CommandType.Text,
+                sql,
+                c =>
+                {
+                    c.AddWithValue("@postId", item.PostId);
+                    c.AddWithValue("@newPostContent", item.NewPostContent);
+                }
+            );
+        }
+        public void SaveNewPostIdOnly(Post item)
+        {
+            string sql = @"
+                UPDATE Posts
+                SET                
+                [NewPostId] = @NewPostId                
+                WHERE postId = @postId
+                    ";
+
+            sqlH.ExecuteNonQuery(
+                CommandType.Text,
+                sql,
+                c =>
+                {
+                    c.AddWithValue("@postId", item.PostId);
+                    c.AddWithValue("@NewPostId", item.NewPostId);
+                }
+            );
         }
     }
 }

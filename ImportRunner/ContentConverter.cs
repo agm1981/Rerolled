@@ -119,9 +119,9 @@ namespace ImportRunner
                 {
                     throw new Exception("missing Source");
                 }
-                Regex numbers= new Regex("\\d+");
+                Regex numbers = new Regex("\\d+");
 
-               string onlyNumber = numbers.Match(dataAttr).Value;
+                string onlyNumber = numbers.Match(dataAttr).Value;
                 data.Append($"[MEDIA=metacafe]{onlyNumber}[/MEDIA]");
 
                 return;
@@ -331,7 +331,7 @@ namespace ImportRunner
                 HtmlNode sour = HtmlNode.CreateNode(node.SelectSingleNode("source").OuterHtml);
                 if (sour == null)
                 {
-                    throw  new Exception("Missing source");
+                    throw new Exception("Missing source");
                 }
 
                 string attSrc = sour.GetAttributeValue("src", null);
@@ -339,23 +339,105 @@ namespace ImportRunner
                 {
                     throw new Exception("Missing source attrib");
                 }
-
+                // just output it
                 attSrc = attSrc.Replace(".webm", string.Empty); // for those webm thingy
                 attSrc = attSrc.Substring(attSrc.LastIndexOf("/", StringComparison.OrdinalIgnoreCase) + 1);
                 string video = $"[MEDIA=imgur]{attSrc}[/MEDIA]";
+               
+                data.Append(video);
+
+                return;
+            }//video.webmfiles.org
+            if (node.Name == "video" && node.InnerHtml.Contains("video.webmfiles.org"))
+            {
+                // vide object inside for imgur
+                HtmlNode sour = HtmlNode.CreateNode(node.SelectSingleNode("source").OuterHtml);
+                if (sour == null)
+                {
+                    throw new Exception("Missing source");
+                }
+
+                string attSrc = sour.GetAttributeValue("src", null);
+                if (attSrc == null)
+                {
+                    throw new Exception("Missing source attrib");
+                }
+                string video = $"[url]{attSrc}[/url]";
+
                 data.Append(video);
 
                 return;
             }
-            //{
-            //    HtmlNode separatedNode = node.SelectSingleNode("//source");
-            //    string src = separatedNode.GetAttributeValue("src", null);
-            //    //Regex reg = new Regex(@".*gfycat.com/");
-            //    //string toRemove = reg.Match(src).Value;
-            //    //src = src.Replace(toRemove, string.Empty).Replace(".mp4", string.Empty).Replace(".webm", string.Empty).Replace(".ogg", string.Empty);
-            //    _data.Append($"[MEDIA]height=320;id={src};width=640[/MEDIA]");
-            //    return;
-            //}
+            if (node.Name == "video" && node.InnerHtml.Contains("webmbassy.com"))
+            {
+                // vide object inside for imgur
+                HtmlNode sour = HtmlNode.CreateNode(node.SelectSingleNode("source").OuterHtml);
+                if (sour == null)
+                {
+                    throw new Exception("Missing source");
+                }
+
+                string attSrc = sour.GetAttributeValue("src", null);
+                if (attSrc == null)
+                {
+                    throw new Exception("Missing source attrib");
+                }
+                string video = $"[url]{attSrc}[/url]";
+
+                data.Append(video);
+
+                return;
+            }
+
+            if (node.Name == "video" && node.InnerHtml.Contains("i.4cdn.org/"))
+            {
+                // vide object inside for imgur
+                HtmlNode sour = HtmlNode.CreateNode(node.SelectSingleNode("source").OuterHtml);
+                if (sour == null)
+                {
+                    throw new Exception("Missing source");
+                }
+                string attSrc = sour.GetAttributeValue("src", null);
+                if (attSrc == null)
+                {
+                    throw new Exception("Missing source attrib");
+                }
+
+                string video = $"[url]{attSrc}[/url]";
+                data.Append(video);
+
+                return;
+            }
+
+            if (node.Name == "video" && node.InnerHtml.Contains("cdn.streamable.com"))
+            {
+                // vide object inside for imgur
+                HtmlNode sour = HtmlNode.CreateNode(node.SelectSingleNode("source").OuterHtml);
+                if (sour == null)
+                {
+                    throw new Exception("Missing source");
+                }
+                string attSrc = sour.GetAttributeValue("src", null);
+                if (attSrc == null)
+                {
+                    throw new Exception("Missing source attrib");
+                }
+
+                string video = $"[url]{attSrc}[/url]";
+                data.Append(video);
+
+                return;
+            }
+            if (node.Name == "video" && node.InnerHtml.Contains(".gfycat.com"))
+            {
+                HtmlNode separatedNode = node.SelectSingleNode("source");
+                src = separatedNode.GetAttributeValue("src", null);
+                Regex reg = new Regex(@".*gfycat.com/");
+                string toRemove = reg.Match(src).Value;
+                src = src.Replace(toRemove, string.Empty).Replace(".mp4", string.Empty).Replace(".webm", string.Empty).Replace(".ogg", string.Empty);
+                data.Append($"[MEDIA=gfycat]height=320;id={src};width=640[/MEDIA]");
+                return;
+            }
 
             if (!node.HasChildNodes)
             {
