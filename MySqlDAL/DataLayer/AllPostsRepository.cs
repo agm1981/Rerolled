@@ -40,6 +40,22 @@ namespace Common.DataLayer
             );
         }
 
+        public IEnumerable<Post> GetPost(IEnumerable<int> postIds)
+        {
+            IEnumerable<int> enumerable = postIds as int[] ?? postIds.ToArray();
+            string cmd = SqlHelper.InClause(@"SELECT * FROM Posts where postId in ({0})", enumerable);
+            
+            return sqlH.ExecuteSet(
+               CommandType.Text,
+               cmd,
+                c =>
+                {
+                     SqlHelper.InParameters(c, enumerable);
+                },
+               mapPosts
+           );
+        }
+
         public Post GetPost(int postId)
         {
             return sqlH.ExecuteSingle(
@@ -108,6 +124,26 @@ namespace Common.DataLayer
             {
                 Save(post);
             }
+        }
+
+        public void SaveNewContentOnly(Post item)
+        {
+            string sql = @"
+                    UPDATE Posts
+                    SET                
+                    [NewPostContent] = @NewPostContent                
+                    WHERE postId = @postId
+                        ";
+
+            sqlH.ExecuteNonQuery(
+                       CommandType.Text,
+                       sql,
+                       c =>
+                       {
+                           c.AddWithValue("@postId", item.PostId);
+                           c.AddWithValue("@newPostContent", item.NewPostContent);
+                       }
+                   );
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -21,19 +22,71 @@ namespace ImportRunner
         {
             HtmlNode node = HtmlNode.CreateNode(Html);
             TreeWalker(node);
-            return _data.ToString();
+            return data.ToString();
         }
         public ContentConverter()
         {
-            _data = new StringBuilder();
+            data = new StringBuilder();
         }
 
-        private readonly StringBuilder _data;
+        private readonly StringBuilder data;
+
         private void TreeWalker(HtmlNode node)
         {
+            string src;
             //string style = node.GetAttributeValue("style", string.Empty);
 
+            //<div class=""cms_table"">
+            if (node.Name == "td")
+            {
+                if (!node.HasChildNodes)
+                {
+                    string text = HttpUtility.HtmlDecode(node.InnerText.RemoveEndOfLineCharacter().ReplaceTabsForSingleWhiteSpace().TrimSafely());
+                    data.Append(text);
+                    return;
+                }
+                else
+                {
+                    foreach (HtmlNode childNode in node.ChildNodes)
+                    {
+                        TreeWalker(childNode);
+                    }
+                }
+                return;
+            }
+            if (node.Name == "div" && node.GetAttributeValue("class", "") == "cms_table")
+            {
+                // da fuc tables
+                /*
+                 * <blockquote class="postcontent restore ">						
+                    <div class="cms_table">
+                    <table width="900" class="cms_table_grid" align="left">
+                        <tr valign="top" class="cms_table_grid_tr">
+                            <td class="cms_table_grid_td">Name</td>
+                            <td class="cms_table_grid_td">Type</td>
+                        </tr>
+                        <tr valign="top" class="cms_table_grid_tr">
+                            <td class="cms_table_grid_td"><b>WHISKEY</b></td>
+                            <td class="cms_table_grid_td"></td>
+                        </tr>
+                    </table></div></blockquote>
+                 */
+                HtmlNode tableNode = HtmlNode.CreateNode(node.SelectSingleNode("table").OuterHtml);
 
+                foreach (HtmlNode tr in tableNode.ChildNodes)
+                {
+                    // go inside the tr
+                    foreach (HtmlNode td in tr.ChildNodes)
+                    {
+                        TreeWalker(td);
+                    }
+
+                    data.AppendLine(); // at the end of the Tr we insert new line
+                }
+
+
+                return;
+            }
             //if (node.Name == "div" && node.GetAttributeValue("class", "") == "gfyitem")
             //{
             //    //source src=""https://zippy.gfycat.com/ShrillWelcomeGeese.mp4
@@ -48,59 +101,157 @@ namespace ImportRunner
             //}
             if (node.Name == "object" && node.GetAttributeValue("data", null)?.Contains("vimeo") == true)
             {
-                string data = node.GetAttributeValue("data", null);
-                if (data == null)
+                string dataAttr = node.GetAttributeValue("data", null);
+                if (dataAttr == null)
                 {
                     throw new Exception("missing Source");
                 }
-                data = data.Substring(data.LastIndexOf("=", StringComparison.OrdinalIgnoreCase) + 1);
-                _data.Append($"[MEDIA=vimeo]{data}[/MEDIA]");
+                dataAttr = dataAttr.Substring(dataAttr.LastIndexOf("=", StringComparison.OrdinalIgnoreCase) + 1);
+                data.Append($"[MEDIA=vimeo]{dataAttr}[/MEDIA]");
 
                 return;
             }
+            if (node.Name == "object" && node.GetAttributeValue("data", null)?.Contains("metacafe") == true)
+            {
+                //data="http://www.metacafe.com/fplayer/3594943/penguin_blew_a_seal/.swf">
+                string dataAttr = node.GetAttributeValue("data", null);
+                if (dataAttr == null)
+                {
+                    throw new Exception("missing Source");
+                }
+                Regex numbers= new Regex("\\d+");
+
+               string onlyNumber = numbers.Match(dataAttr).Value;
+                data.Append($"[MEDIA=metacafe]{onlyNumber}[/MEDIA]");
+
+                return;
+            }
+            if (node.Name == "object" && node.GetAttributeValue("data", null)?.Contains("facebook.com/v") == true)
+            {
+                string dataAttr = node.GetAttributeValue("data", null);
+                if (dataAttr == null)
+                {
+                    throw new Exception("missing Source");
+                }
+                dataAttr = dataAttr.Substring(dataAttr.LastIndexOf("/", StringComparison.OrdinalIgnoreCase) + 1);
+                data.Append($"[MEDIA=facebook]{dataAttr}[/MEDIA]");
+
+                return;
+            }
+            if (node.Name == "object" && node.GetAttributeValue("data", null)?.Contains("dailymotion.com") == true)
+            {
+                string dataAttr = node.GetAttributeValue("data", null);
+                if (dataAttr == null)
+                {
+                    throw new Exception("missing Source");
+                }
+                dataAttr = dataAttr.Substring(dataAttr.LastIndexOf("/", StringComparison.OrdinalIgnoreCase) + 1);
+                data.Append($"[MEDIA=dailymotion]{dataAttr}[/MEDIA]");
+
+                return;
+            }
+
             if (node.Name == "a")
             {
-                string src = node.GetAttributeValue("href", null);
+                src = node.GetAttributeValue("href", null);
+                if (src == "http://<object width=")
+                {
+                    HtmlNode paramNode = node.FirstChild;
+                    if (paramNode.Name == "param" && paramNode.GetAttributeValue("name", null) == "movie" && paramNode.GetAttributeValue("value", string.Empty).Contains("youtube"))
+                    {
+                        // fucked up case. its a youtube video inside the link WFT people
+                        string dataValue = paramNode.GetAttributeValue("value", string.Empty);
+                        dataValue = dataValue.Substring(0, dataValue.IndexOf("?", StringComparison.OrdinalIgnoreCase));
+                        dataValue = dataValue.Substring(dataValue.LastIndexOf("/", StringComparison.Ordinal) + 1);
+                        string video = $"[MEDIA=youtube]{dataValue}[/MEDIA]";
+                        data.Append(video);
+                    }
+
+                    return;
+                }
+
                 if (src == null)
                 {
                     throw new Exception("missing Source");
                 }
-                _data.Append($"[url={src}]");
+                data.Append($"[url={src}]");
                 foreach (HtmlNode childNode in node.ChildNodes)
                 {
                     TreeWalker(childNode);
                 }
-                _data.Append("[/url]");
+                data.Append("[/url]");
                 return;
             }
             if (node.Name == "b")
             {
-                _data.Append("[b]");
+                data.Append("[b]");
                 foreach (HtmlNode childNode in node.ChildNodes)
                 {
                     TreeWalker(childNode);
                 }
-                _data.Append("[/b]");
+                data.Append("[/b]");
+                return;
+            }
+            if (node.Name == "ul")
+            {
+                data.Append("[ul]");
+                foreach (HtmlNode childNode in node.ChildNodes)
+                {
+                    TreeWalker(childNode);
+                }
+                data.Append("[/ul]");
+                return;
+            }
+
+            if (node.Name == "ol")
+            {
+                data.Append("[ol]");
+                foreach (HtmlNode childNode in node.ChildNodes)
+                {
+                    TreeWalker(childNode);
+                }
+                data.Append("[/ol]");
+                return;
+            }
+
+            if (node.Name == "li")
+            {
+                data.Append("[li]");
+                foreach (HtmlNode childNode in node.ChildNodes)
+                {
+                    TreeWalker(childNode);
+                }
+                data.Append("[/li]");
+                return;
+            }
+
+
+            if (node.Name == "font")
+            {
+                foreach (HtmlNode childNode in node.ChildNodes)
+                {
+                    TreeWalker(childNode);
+                }
                 return;
             }
             if (node.Name == "u")
             {
-                _data.Append("[u]");
+                data.Append("[u]");
                 foreach (HtmlNode childNode in node.ChildNodes)
                 {
                     TreeWalker(childNode);
                 }
-                _data.Append("[/u]");
+                data.Append("[/u]");
                 return;
             }
             if (node.Name == "i")
             {
-                _data.Append("[i]");
+                data.Append("[i]");
                 foreach (HtmlNode childNode in node.ChildNodes)
                 {
                     TreeWalker(childNode);
                 }
-                _data.Append("[/i]");
+                data.Append("[/i]");
                 return;
             }
             if (node.Name == "div" && node.ChildNodes.Count > 1 && node.ChildNodes[1].InnerText.TrimSafely().Equals("Spoiler:&nbsp;"))
@@ -111,9 +262,9 @@ namespace ImportRunner
                 // add spoiler stuff
                 if (messageNode != null)
                 {
-                    _data.Append("[spoiler]");
+                    data.Append("[spoiler]");
                     TreeWalker(messageNode);
-                    _data.Append("[/spoiler]");
+                    data.Append("[/spoiler]");
                 }
                 return;
             }
@@ -125,14 +276,14 @@ namespace ImportRunner
                 // make that distintion. 
                 HtmlNode separatedNode = HtmlNode.CreateNode(node.OuterHtml);
                 HtmlNode testForInternalQuote = separatedNode.SelectSingleNode("/div/div/div/div[2]");
-                if (testForInternalQuote != null && testForInternalQuote.HasChildNodes)
+                if (testForInternalQuote != null && testForInternalQuote.HasChildNodes && testForInternalQuote.GetAttributeValue("class", null) == "bbcode_postedby")
                 {
                     string userName = HttpUtility.HtmlDecode(separatedNode.SelectSingleNode("/div/div/div/div/strong").InnerText.RemoveEndOfLineCharacter().ReplaceTabsForSingleWhiteSpace().TrimSafely());
 
-                    string postIdRef = node.SelectSingleNode("div/div/div[2]/a")?.GetAttributeValue("href", null);
+                    string postIdRef = separatedNode.SelectSingleNode("div/div/div[2]/a")?.GetAttributeValue("href", null);
                     if (postIdRef == null)
                     {
-                        _data.Append($"[quote='{userName}']");
+                        data.Append($"[quote='{userName}']");
 
                         // process specidic child node
                         HtmlNode internalNodeWitHMessage = separatedNode.SelectSingleNode("/div/div/div/div[3]");
@@ -140,7 +291,7 @@ namespace ImportRunner
                         {
                             TreeWalker(internalNodeWitHMessage);
                         }
-                        _data.Append("[/quote]");
+                        data.Append("[/quote]");
                     }
                     else
                     {
@@ -148,7 +299,7 @@ namespace ImportRunner
                         string post = reg.Match(postIdRef).Value;
                         post = post.Replace("p=", string.Empty).Replace("#", string.Empty);
                         // [quote='Intrinsic' pid='528' dateline='1469909677']Dance, I think?[/quote]
-                        _data.Append($"[quote='{userName}' pid='{post}' dateline='1']");
+                        data.Append($"[quote='{userName}' pid='{post}' dateline='1']");
 
                         // process specidic child node
                         HtmlNode internalNodeWitHMessage = separatedNode.SelectSingleNode("/div/div/div/div[3]");
@@ -156,13 +307,13 @@ namespace ImportRunner
                         {
                             TreeWalker(internalNodeWitHMessage);
                         }
-                        _data.Append("[/quote]");
+                        data.Append("[/quote]");
                     }
                 }
                 else
                 {
                     // [quote]It's bummer we may never see him again.  Doubt he'll get the memo on the new site.[/quote]
-                    _data.Append("[quote]");
+                    data.Append("[quote]");
 
                     // process specidic child node
                     HtmlNode internalNodeWitHMessage = separatedNode.SelectSingleNode("//div/div/div");
@@ -170,11 +321,32 @@ namespace ImportRunner
                     {
                         TreeWalker(internalNodeWitHMessage);
                     }
-                    _data.Append("[/quote]");
+                    data.Append("[/quote]");
                 }
                 return;
             }
-            //if (node.Name == "video")
+            if (node.Name == "video" && node.InnerHtml.Contains("i.imgur.com"))
+            {
+                // vide object inside for imgur
+                HtmlNode sour = HtmlNode.CreateNode(node.SelectSingleNode("source").OuterHtml);
+                if (sour == null)
+                {
+                    throw  new Exception("Missing source");
+                }
+
+                string attSrc = sour.GetAttributeValue("src", null);
+                if (attSrc == null)
+                {
+                    throw new Exception("Missing source attrib");
+                }
+
+                attSrc = attSrc.Replace(".webm", string.Empty); // for those webm thingy
+                attSrc = attSrc.Substring(attSrc.LastIndexOf("/", StringComparison.OrdinalIgnoreCase) + 1);
+                string video = $"[MEDIA=imgur]{attSrc}[/MEDIA]";
+                data.Append(video);
+
+                return;
+            }
             //{
             //    HtmlNode separatedNode = node.SelectSingleNode("//source");
             //    string src = separatedNode.GetAttributeValue("src", null);
@@ -184,13 +356,17 @@ namespace ImportRunner
             //    _data.Append($"[MEDIA]height=320;id={src};width=640[/MEDIA]");
             //    return;
             //}
-            string text;
+
             if (!node.HasChildNodes)
             {
+                string text;
                 switch (node.Name)
                 {
+                    case "hr":
+                        data.Append("----------------------------------------------------------------").AppendLine();
+                        break;
                     case "br":
-                        _data.AppendLine();
+                        data.AppendLine();
                         break;
                     case "iframe":
                         if (node.GetAttributeValue("title", string.Empty).StartsWith("youtube", StringComparison.OrdinalIgnoreCase))
@@ -198,38 +374,51 @@ namespace ImportRunner
                             // <iframe class=""restrain"" title=""YouTube video player"" width=""640"" height=""390"" src=""//www.youtube.com/embed/rF9D7S480Mw?wmode=opaque"" frameborder=""0"" id=""yui-gen130""></iframe>
                             // [video=youtube]https://youtu.be/JINQh1ttao0?t=59s[/video]
                             //[MEDIA=youtube]GQQMLE4FuIQ[/MEDIA]
-                            string data = node.GetAttributeValue("src", string.Empty);
-                            if (data == null)
+                            src = node.GetAttributeValue("src", null);
+                            if (src == null)
                             {
                                 throw new Exception("Invalid tag " + node.Name);
                             }
-                            data = data.Substring(0, data.IndexOf("?", StringComparison.OrdinalIgnoreCase));
-                            int lastIndex = data.LastIndexOf("/", StringComparison.OrdinalIgnoreCase);
-                            data = data.Substring(lastIndex + 1);
+                            src = src.Substring(0, src.IndexOf("?", StringComparison.OrdinalIgnoreCase));
+                            int lastIndex = src.LastIndexOf("/", StringComparison.OrdinalIgnoreCase);
+                            src = src.Substring(lastIndex + 1);
 
-                            string video = $"[MEDIA=youtube]{data}[/MEDIA]";
-                            _data.Append(video);
+                            string video = $"[MEDIA=youtube]{src}[/MEDIA]";
+                            data.Append(video);
                             break;
                         }
 
                         throw new Exception("Invalid tag " + node.Name);
                     case "img":
-                        string src = node.GetAttributeValue("src", string.Empty);
-                        _data.Append($"[img]{src}[/img]");
+                        src = node.GetAttributeValue("src", null);
+                        string gfyitem = node.GetAttributeValue("class", null);
+                        if (gfyitem == "gfyitem")
+                        {
+                            // "gfyitem" img 
+
+
+                            string dataId = node.GetAttributeValue("data-id", null);
+                            data.Append($"[MEDIA=gfycat]height=320;id={dataId};width=640[/MEDIA]");
+                            break;
+                        }
+                        if (src == null)
+                        {
+                            throw new Exception("missing source");
+                        }
+                        data.Append($"[img]{src}[/img]");
                         break;
                     case "#text":
                         text = HttpUtility.HtmlDecode(node.InnerText.RemoveEndOfLineCharacter().ReplaceTabsForSingleWhiteSpace().TrimSafely());
-                        _data.Append(text);
+                        data.Append(text);
                         break;
                     case "div":
                         text = HttpUtility.HtmlDecode(node.InnerText.RemoveEndOfLineCharacter().ReplaceTabsForSingleWhiteSpace().TrimSafely());
-                        _data.Append(text);
+                        data.Append(text);
                         break;
 
                     default:
                         throw new Exception("Invalid tag " + node.Name);
                 }
-
             }
 
             foreach (HtmlNode childNode in node.ChildNodes)

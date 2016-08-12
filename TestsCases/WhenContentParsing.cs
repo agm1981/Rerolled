@@ -22,6 +22,38 @@ namespace TestsCases
         }
 
         [TestMethod]
+        public void ThenFontTagsParseProperly()
+        {
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore "">a
+							<font color=""#000000"">.</font>b
+						</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual(
+                "a.b",
+                outString);
+        }
+
+        [TestMethod]
+        public void ThenHragsParseProperly()
+        {
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore "">a
+							<hr>b
+						</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual(
+                $"a----------------------------------------------------------------{Environment.NewLine}b",
+                outString);
+        }
+
+        [TestMethod]
         public void ThenBrTagsParseProperly()
         {
             ContentConverter content = new ContentConverter
@@ -67,6 +99,27 @@ namespace TestsCases
             outString = content.ConvertContent();
             Assert.AreEqual("[MEDIA=youtube]W2ET8ghJaBE[/MEDIA][MEDIA=youtube]ojpQ3LCeQTY[/MEDIA]", outString);
         }
+        
+        [TestMethod]
+        public void ThenYouTubeTagsInsideAtagsParseProperly()
+        {
+            ContentConverter content = new ContentConverter
+            {
+                Html = @"<blockquote class=""postcontent restore "">						
+<a href=""http://<object width="" 420""="""" height=""315""><param name=""movie"" value=""http://www.youtube.com/v/6lHHQu4CIos?version=3&amp;amp;hl=en_US%22></param><param%20name=%22allowFullScreen%22%20value=%22true%22></param><param%20name=%22allowscriptaccess%22%20value=%22always%22></param><embed%20src=%22http://www.youtube.com/v/6lHHQu4CIos?version=3&amp;amp;hl=en_US%22%20type=%22application/x-shockwave-flash%22%20width=%22420%22%20height=%22315%22%20allowscriptaccess=%22always%22%20allowfullscreen=%22true%22></embed></object>"" target=""_blank"">http://&lt;object width=&quot;420&quot; height=&quot;3...mbed&gt;&lt;/object&gt;</a>
+						</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("[MEDIA=youtube]6lHHQu4CIos[/MEDIA]", outString);
+
+            content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore ""><iframe class=""restrain"" title=""YouTube video player"" width=""640"" height=""390"" src=""//www.youtube.com/embed/W2ET8ghJaBE?wmode=opaque"" frameborder=""0""></iframe><iframe class=""restrain"" title=""YouTube video player"" width=""640"" height=""390"" src=""//www.youtube.com/embed/ojpQ3LCeQTY?wmode=opaque"" frameborder=""0""></iframe></blockquote>"
+            };
+            outString = content.ConvertContent();
+            Assert.AreEqual("[MEDIA=youtube]W2ET8ghJaBE[/MEDIA][MEDIA=youtube]ojpQ3LCeQTY[/MEDIA]", outString);
+        }
 
         [TestMethod]
         public void ThenBTagsParseProperly()
@@ -98,6 +151,79 @@ namespace TestsCases
             Assert.AreEqual("a[MEDIA=vimeo]66169135[/MEDIA]b", outString);
         }
 
+        [TestMethod]
+        public void ThenFacebookVideosParseProperly()
+        {
+            //
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore "">a<object class=""restrain"" type=""application/x-shockwave-flash"" width=""576"" height=""432"" data=""http://www.facebook.com/v/833481713333895"">
+	<param name=""movie"" value=""//www.facebook.com/v/833481713333895"">
+	<param name=""wmode"" value=""opaque"">
+	<!--[if IE 6]>
+	<embed width=""576"" height=""432"" type=""application/x-shockwave-flash"" src=""//www.facebook.com/v/833481713333895"" />
+	<![endif]--></object>b </blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("a[MEDIA=facebook]833481713333895[/MEDIA]b", outString);
+        }
+
+        [TestMethod]
+        public void ThenDailyMotionVideosParseProperly()
+        {
+            //
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore "">a<object class=""restrain"" type=""application/x-shockwave-flash"" width=""420"" height=""339"" data=""http://www.dailymotion.com/swf/x10zzmb"">
+	<param name=""movie"" value=""http://www.dailymotion.com/swf/x10zzmb"">
+	<param name=""wmode"" value=""opaque"">
+	<!--[if IE 6]>
+	<embed width=""420"" height=""339"" type=""application/x-shockwave-flash"" src=""http://www.dailymotion.com/swf/x10zzmb"" />
+	<![endif]--></object>b </blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("a[MEDIA=dailymotion]x10zzmb[/MEDIA]b", outString);
+        }
+
+        [TestMethod]
+        public void ThenVideoObjectsWithWebmParseProperly()
+        {
+            //
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore "">a<video width=""600"" height=""472"" controls="""">
+<source src=""http://i.imgur.com/tIoAL6n.webm"" type=""video/mp4"">
+<source src=""http://i.imgur.com/tIoAL6n.webm"" type=""video/ogg"">
+<source src=""http://i.imgur.com/tIoAL6n.webm"" type=""video/webm"">
+<object data=""http://i.imgur.com/tIoAL6n.webm"" width=""600"" height=""472"">
+<embed src=""http://i.imgur.com/tIoAL6n.webm"" width=""320"" height=""240"">
+</object> 
+</source></source></source></video>b</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("a[MEDIA=imgur]tIoAL6n[/MEDIA]b", outString);
+        }
+
+        [TestMethod]
+        public void ThenMetacafeVideosParseProperly()
+        {
+            //
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore "">a<object class=""restrain"" type=""application/x-shockwave-flash"" width=""400"" height=""345"" data=""http://www.metacafe.com/fplayer/3594943/penguin_blew_a_seal/.swf"">
+	<param name=""movie"" value=""http://www.metacafe.com/fplayer/3594943/penguin_blew_a_seal/.swf"">
+	<param name=""wmode"" value=""opaque"">
+	<!--[if IE 6]>
+	<embed width=""400"" height=""345"" type=""application/x-shockwave-flash"" src=""http://www.metacafe.com/fplayer/3594943/penguin_blew_a_seal/.swf"" />
+	<![endif]--></object>b</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("a[MEDIA=metacafe]3594943[/MEDIA]b", outString);
+        }
 
         [TestMethod]
         public void ThenUTagsParseProperly()
@@ -144,8 +270,7 @@ namespace TestsCases
                 outString);
            
         }
-
-
+        
         [TestMethod]
         public void ThenQuoteWithAuthorTagsWithOutPostIdParseProperly()
         {
@@ -197,8 +322,7 @@ namespace TestsCases
                 outString);
         
     }
-
-
+        
         [TestMethod]
         public void ThenSpolierTagsParseProperly()
         {
@@ -211,7 +335,7 @@ namespace TestsCases
             var outString = content.ConvertContent();
             Assert.AreEqual("a[spoiler]Snape kills dumberdole[/spoiler]b", outString);
         }
-
+        
         [TestMethod]
         public void ThenTextTagsParseProperly()
         {
@@ -223,7 +347,17 @@ namespace TestsCases
             Assert.AreEqual("a le dasd", outString);
         }
 
-
+        [TestMethod]
+        public void ThenImgGifyTagsParseProperly()
+        {
+            ContentConverter content = new ContentConverter
+            {
+                Html = @"<blockquote class=""postcontent restore "">a<img class=""gfyitem"" data-id=""ScratchyUnpleasantGoitered"">b</blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual("a[MEDIA=gfycat]height=320;id=ScratchyUnpleasantGoitered;width=640[/MEDIA]b", outString);
+        }
+        
         [TestMethod]
         public void ThenTextSpansParseProperly()
         {
@@ -243,7 +377,41 @@ Aware that the oil giant could have a battery of lawyers and experts at the hear
 ""Bring 'em on. I'm a United States Marine. I'm not afraid of anyone. I'm not afraid of them,"" he said. ""When I'm done with them, they will know that they've been in a fight. I may not win, but I'm going to hurt them.""
 ", outString);
         }
+        
+        [TestMethod]
+        public void ThenUlSpansParseProperly()
+        {
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore ""><ul><li style="""">1</li><li style="""">2</li></ul></blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual(@"[ul][li]1[/li][li]2[/li][/ul]", outString);
+        }
 
+        [TestMethod]
+        public void ThenOlSpansParseProperly()
+        {
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore ""><ol><li style="""">1</li><li style="""">2</li></ol></blockquote>>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual(@"[ol][li]1[/li][li]2[/li][/ol]", outString);
+        }
 
+        [TestMethod]
+        public void ThenTablesParseProperly()
+        {
+            ContentConverter content = new ContentConverter
+            {
+                Html =
+                    @"<blockquote class=""postcontent restore ""><div class=""cms_table""><table width=""900"" class=""cms_table_grid"" align=""left""><tr valign=""top"" class=""cms_table_grid_tr""><td class=""cms_table_grid_td"">Name</td><td class=""cms_table_grid_td"">Type</td></tr><tr valign=""top"" class=""cms_table_grid_tr""><td class=""cms_table_grid_td""><b>WHISKEY</b></td><td class=""cms_table_grid_td""><u>$123.00</u></td></tr></table></div></blockquote>"
+            };
+            var outString = content.ConvertContent();
+            Assert.AreEqual($@"NameType{Environment.NewLine}[b]WHISKEY[/b][u]$123.00[/u]{Environment.NewLine}", outString);
+        }
     }
 }

@@ -15,16 +15,29 @@ namespace ImportRunner
         {
             AllPostsRepository rep = new AllPostsRepository();
 
-            HashSet<int> allPosts = new HashSet<int>(rep.GetAllPosts());
-            foreach (int postId in allPosts)
+            HashSet<int> allPostsThatNeedToBeWorkedOn = new HashSet<int>(rep.GetAllPostsToUpdate());
+            int runningCount = 0;
+            bool check = true;
+            while (check)
             {
-                Post post = rep.GetPost(postId);
-                string newconntet = new ContentConverter
+                IEnumerable<int> batchIds = allPostsThatNeedToBeWorkedOn.Take(1000).ToList();
+                IEnumerable<Post> batchToWork = rep.GetPost(batchIds).ToList();
+                foreach (Post post in batchToWork)
                 {
-                    Html = post.PostContent
-                }.ConvertContent();
-                post.NewPostContent = newconntet;
-                rep.Save(post);
+                    string newconntet = new ContentConverter
+                    {
+                        Html = post.PostContent
+                    }.ConvertContent();
+                    post.NewPostContent = newconntet;
+                    rep.SaveNewContentOnly(post);
+                }
+                // check now
+                allPostsThatNeedToBeWorkedOn.RemoveWhere(c => batchIds.Contains(c));
+                if (allPostsThatNeedToBeWorkedOn.Count < 1)
+                {
+                    check = false;
+                }
+
             }
         }
     }
