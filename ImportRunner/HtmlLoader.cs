@@ -123,7 +123,7 @@ namespace ImportRunner
                 return;
             }
             
-            repository.Save(trd.Thread);
+            repository.InsertThread(trd.Thread);
             ThreadNames.Add(trd.Thread.CombinedName);
         }
     }

@@ -10,8 +10,15 @@ namespace ImportRunner
     {
         static void Main(string[] args)
         {
+            //for debugg
             //new HtmlLoader().Start();
-            new ConvertMessages().Start();
+            //new ConvertMessages().Start();
+
+            // actual prod process
+            //new UserNameExporterToMySql().Start();
+            //new ThreadExporterToMySql().AddForumId(); // do this one to get the forum id locally. 
+            new ThreadExporterToMySql().InsertAllThreads();
+
         }
     }
 }

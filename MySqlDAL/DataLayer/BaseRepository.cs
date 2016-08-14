@@ -34,7 +34,6 @@ namespace Common.DataLayer
                 o => (o == null) ? false : (bool)o
             );
         }
-
-    
+        
     }
 }

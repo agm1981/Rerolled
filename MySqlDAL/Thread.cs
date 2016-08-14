@@ -21,7 +21,7 @@ namespace Common
             get;
             set;
         }
-        public string NewForumName
+        public int? NewForumId
         {
             get;
             set;
@@ -33,6 +33,11 @@ namespace Common
             set;
         }
 
+        public int? NewThreadId
+        {
+            get;
+            set;
+        }
 
 
         public override string ToString()

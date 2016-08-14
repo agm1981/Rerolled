@@ -10,13 +10,14 @@ namespace Common.DataLayer
 {
     public class AllThreadsRepository : BaseRepository
     {
-        private Func<IDataReader, Thread > mapThreads = dr => new Thread
-        { 
-           ThreadId = dr.Get<int>("ThreadId"),
-           ThreadName = dr.GetSafe<string>("ThreadName"),
-           OldForumName = dr.GetSafe<string>("OldForumName"),
-            NewForumName = dr.GetSafe<string>("NewForumName"),
+        private Func<IDataReader, Thread> mapThreads = dr => new Thread
+        {
+            ThreadId = dr.Get<int>("ThreadId"),
+            ThreadName = dr.Get<string>("ThreadName"),
+            OldForumName = dr.GetSafe<string>("OldForumName"),
+            NewForumId = dr.GetSafe<int?>("NewForumId"),
             UserNameStarter = dr.GetSafe<string>("UserNameStarter"),
+            NewThreadId = dr.GetSafe<int?>("NewThreadId"),
         };
 
         private Func<IDataReader, int> mapIds = dr => dr.Get<int>("PostId");
@@ -30,18 +31,27 @@ namespace Common.DataLayer
                 mapThreads
             );
         }
+        public IEnumerable<Thread> GetAllThreadsToExport()
+        {
+            return sqlH.ExecuteSet(
+                CommandType.Text,
+                @"SELECT * FROM Threads where newThreadId is null and newForumid is not null",
+                null,
+                mapThreads
+            );
+        }
 
-        public void Save(Thread item)
+        public void InsertThread(Thread item)
         {
             string sql = @"INSERT INTO [dbo].[Threads]
                     ([ThreadName]
                        ,[OldForumName]
-                       ,[NewForumName]
+                       ,[NewForumId]
                        ,[UserNameStarter])
                     VALUES
                       (@ThreadName
                        ,@OldForumName
-                       ,@NewForumName
+                       ,@NewForumId
                        ,@UserNameStarter)";
 
             sqlH.ExecuteNonQuery(
@@ -51,22 +61,58 @@ namespace Common.DataLayer
                        {
                            c.AddWithValue("@ThreadName", item.ThreadName);
                            c.AddWithValue("@OldForumName", item.OldForumName);
-                           c.AddWithValue("@NewForumName", item.NewForumName);
+                           c.AddWithValue("@NewForumId", item.NewForumId);
                            c.AddWithValue("@UserNameStarter", item.UserNameStarter);
-                           
                        }
                    );
         }
 
-        public void Save(IEnumerable<Thread> postToAdd)
+
+        public void UpdateForumId(Thread item)
+        {
+            string sql = @"Update [dbo].[Threads]
+                    set NewForumId = @NewForumId
+                    where ThreadId = @ThreadId                    
+                   ";
+
+            sqlH.ExecuteNonQuery(
+                       CommandType.Text,
+                       sql,
+                       c =>
+                       {
+                           c.AddWithValue("@NewForumId", item.NewForumId);
+                           c.AddWithValue("@ThreadId", item.ThreadId);
+                       }
+                   );
+        }
+
+        public void UpdateFohThreadId(Thread item)
+        {
+            string sql = @"Update [dbo].[Threads]
+                    set NewThreadId = @NewThreadId
+                    where ThreadId = @ThreadId                    
+                   ";
+
+            sqlH.ExecuteNonQuery(
+                       CommandType.Text,
+                       sql,
+                       c =>
+                       {
+                           c.AddWithValue("@NewThreadId", item.NewThreadId);
+                           c.AddWithValue("@ThreadId", item.ThreadId);
+                       }
+                   );
+        }
+
+        public void InsertThread(IEnumerable<Thread> postToAdd)
         {
             foreach (Thread thread in postToAdd)
             {
-                Save(thread);
+                InsertThread(thread);
             }
         }
 
-        
+
     }
 }
 

@@ -73,6 +73,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataLayer\AllPostMySqlRepository.cs" />
+    <Compile Include="DataLayer\AllThreadsMySqlRepository.cs" />
+    <Compile Include="DataLayer\AllUserMySqlRepository.cs" />
+    <Compile Include="DataLayer\AllUsersSavedRepository.cs" />
     <Compile Include="DataLayer\AllThreadsRepository.cs" />
     <Compile Include="DataLayer\AllPostsRepository.cs" />
     <Compile Include="DataLayer\BaseRepository.cs" />
@@ -84,7 +88,11 @@
     <Compile Include="DataLayer\Extension.cs" />
     <Compile Include="DataLayer\Extensions.cs" />
     <Compile Include="DataLayer\MultiSet.cs" />
-    <Compile Include="DataLayer\MySqlDataConnector.cs" />
+    <Compile Include="DataLayer\MySqlBaseRepository.cs" />
+    <Compile Include="DataLayer\MySqlHelper.cs" />
+    <Compile Include="DataLayer\MySqlPost.cs" />
+    <Compile Include="DataLayer\MySqlThread.cs" />
+    <Compile Include="DataLayer\MySqlUser.cs" />
     <Compile Include="DataLayer\SafeDataReader.cs" />
     <Compile Include="DataLayer\SqlBulkCopyExceptionHelper.cs" />
     <Compile Include="DataLayer\SqlHelper.cs" />

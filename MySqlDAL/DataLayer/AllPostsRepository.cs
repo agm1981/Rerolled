@@ -23,6 +23,16 @@ namespace Common.DataLayer
 
         private Func<IDataReader, int> mapIds = dr => dr.Get<int>("PostId");
 
+        public IEnumerable<string> GetAllUsersFromPostTable()
+        {
+            return sqlH.ExecuteSet(
+                CommandType.Text,
+                @"select distinct username from Posts ",
+                null,
+                c=> c.Get<string>("UserName")
+            );
+        }
+
         public IEnumerable<int> GetAllPosts()
         {
             return sqlH.ExecuteSet(
