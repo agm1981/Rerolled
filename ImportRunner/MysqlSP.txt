@@ -1,0 +1,187 @@
+﻿DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertPost`(in threadId int, in userId int, in userna varchar(50), in postDate int, in content mediumtext, in position int, out postId int )
+BEGIN
+		INSERT INTO xf_post
+		(
+		thread_id,
+		user_id,
+		username,
+		post_date,
+		message,
+		ip_id,
+		message_state,
+		attach_count,
+		position,
+		likes,
+		like_users,
+		warning_id,
+		warning_message,
+		last_edit_date,
+		last_edit_user_id,
+		edit_count)
+		VALUES
+		(
+		threadId,
+		userId,
+		userna,
+		postDate,
+		content,
+		0,
+		'visible',
+		0,
+		position,
+		0,
+		(select * from (select like_users from xf_post where post_Id = 2) as X),			
+		0,
+		'',
+		0,
+		0,
+		0);
+
+SELECT LAST_INSERT_ID() into postId;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertProfile`(in newName nvarchar(50), out userId int)
+BEGIN
+
+
+if(NOT exists (select username from xf_user where username=newName)) THEN
+BEGIN
+		INSERT INTO xf_user
+		(
+		username,
+		email,
+		gender,
+		custom_title,
+		language_id,
+		style_id,
+		timezone,
+		visible,
+		activity_visible,
+		user_group_id,
+		secondary_group_ids,
+		display_style_group_id,
+		permission_combination_id,
+		message_count,
+		conversations_unread,
+		register_date,
+		last_activity,
+		trophy_points,
+		alerts_unread,
+		avatar_date,
+		avatar_width,
+		avatar_height,
+		gravatar,
+		user_state,
+		is_moderator,
+		is_admin,
+		is_banned,
+		like_count,
+		warning_points,
+		is_staff)
+		VALUES
+		(
+
+		newName,
+		concat(cast(CONV(SUBSTRING(CAST(SHA('sds') AS CHAR), 1, 16), 16, 10) as char) ,'@gmailish.com'),
+		'male',
+		'shitlord',
+		1,
+		0,
+		'America/New_York',
+		1,
+		1,
+		2,
+		(select * from (select secondary_group_ids from xf_user where username ='lendarios') as X),
+		2,
+		(select * from (select permission_combination_id from xf_user where username ='lendarios') as X),
+		0,
+		0,
+		(select * from (select register_date from xf_user where username ='lendarios') as X),
+		(select * from (select last_activity from xf_user where username ='lendarios') as X),
+		0,
+		0,
+		0,
+		0,
+		0,
+		(select * from (select gravatar from xf_user where username ='lendarios') as X),
+		(select * from (select user_state from xf_user where username ='lendarios') as X),
+		0,
+		0,
+		0,
+		0,
+		0,
+		0);
+	END;
+END IF;
+	Select user_id into userId From xf_user
+    Where  userName = newName;
+
+END$$
+DELIMITER ;
+
+DELIMITER $$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertThread`(in nodeId int, in titleThread varchar(150), in userId int, in username varchar(50), out threadId int)
+BEGIN
+
+
+if(NOT exists (
+	select thread_Id from xf_thread
+		where title = titleThread and node_id = nodeId
+        
+        )) THEN
+BEGIN
+
+			INSERT INTO xf_thread
+			(
+			node_id,
+			title,
+			reply_count,
+			view_count,
+			user_id,
+			username,
+			post_date,
+			sticky,
+			discussion_state,
+			discussion_open,
+			discussion_type,
+			first_post_id,
+			first_post_likes,
+			last_post_date,
+			last_post_id,
+			last_post_user_id,
+			last_post_username,
+			prefix_id,
+			tags)
+			VALUES
+			(
+			nodeId,
+			titleThread,
+			0,
+			0,
+			userId,
+			userName,
+			(select * from (select post_date from xf_thread where thread_Id = 3) as X),
+			(select * from (select sticky from xf_thread where thread_Id = 3) as X),
+			(select * from (select discussion_state from xf_thread where thread_Id = 3) as X),
+			0, 
+			(select * from (select discussion_type from xf_thread where thread_Id = 3) as X),			
+			(select * from (select first_post_id from xf_thread where thread_Id = 3) as X),
+			(select * from (select first_post_likes from xf_thread where thread_Id = 3) as X),            
+			(select * from (select last_post_date from xf_thread where thread_Id = 3) as X),
+			(select * from (select last_post_id from xf_thread where thread_Id = 3) as X),
+            9,
+             'jihodj',
+			0,
+			(select * from (select tags from xf_thread where thread_Id = 3) as X));
+
+END;
+END IF;
+	select thread_Id into threadId from xf_thread
+		where title = titleThread and node_id = nodeid;
+
+END$$
+DELIMITER ;
