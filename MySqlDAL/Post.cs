@@ -48,6 +48,12 @@ namespace Common
             set;
         }
 
+        public int? NewThreadId
+        {
+            get;
+            set;
+        }
+
         public override string ToString()
         {
             return $"PostId: {PostId}, UserName: {UserName}, PostContentLength: {PostContent?.Length}, PostDate: {PostDate}";

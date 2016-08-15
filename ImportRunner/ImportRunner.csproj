@@ -66,6 +66,7 @@
     <Compile Include="ConvertMessages.cs" />
     <Compile Include="HtmlLoader.cs" />
     <Compile Include="PostExtracter.cs" />
+    <Compile Include="PostImporter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThreadExporterToMySql.cs" />

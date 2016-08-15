@@ -10,7 +10,7 @@ namespace Common.DataLayer
 {
     public class AllPostsRepository : BaseRepository
     {
-        private Func<IDataReader, Post> mapPosts = dr => new Post
+        private readonly Func<IDataReader, Post> mapPosts = dr => new Post
         {
             PostId = dr.Get<int>("PostId"),
             UserName = dr.GetSafe<string>("UserName"),
@@ -19,9 +19,37 @@ namespace Common.DataLayer
             ThreadName = dr.GetSafe<string>("ThreadName"),
             NewPostContent = dr.GetSafe<string>("NewPostContent"),
             NewPostId = dr.GetSafe<int?>("NewPostId"),
+            NewThreadId = dr.GetSafe<int?>("NewThreadId")
         };
 
-        private Func<IDataReader, int> mapIds = dr => dr.Get<int>("PostId");
+        private readonly Func<IDataReader, int> mapIds = dr => dr.Get<int>("PostId");
+
+        private readonly Func<IDataReader, PostImported> mapPostsImported = dr => new PostImported
+        {
+            NewPostId = dr.Get<int>("NewPostId"),
+            OldPostId = dr.Get<int>("PostId"),
+            NewThreadId = dr.Get<int>("NewThreadId"),
+        };
+        public IEnumerable<PostImported> GetAllExportedPosts()
+        {
+            return sqlH.ExecuteSet(
+                CommandType.Text,
+                @"select PostId,  NewPostId, NewThreadId from Posts  where NewPostId is not null",
+                null,
+                mapPostsImported
+            );
+        }
+        public IEnumerable<int> GetPostsToExport()
+        {
+            return sqlH.ExecuteSet(
+                CommandType.Text,
+                @"select postId from Posts  where NewPostId is null ORDER by PostId",
+                null,
+                mapIds
+            );
+        }
+
+
 
         public IEnumerable<string> GetAllUsersFromPostTable()
         {
@@ -157,12 +185,13 @@ namespace Common.DataLayer
                 }
             );
         }
-        public void SaveNewPostIdOnly(Post item)
+        public void SaveNewPostIdNewThreadIdOnly(Post item)
         {
             string sql = @"
                 UPDATE Posts
                 SET                
-                [NewPostId] = @NewPostId                
+                [NewPostId] = @NewPostId,
+                [NewThreadId] = @NewThreadId
                 WHERE postId = @postId
                     ";
 
@@ -173,9 +202,11 @@ namespace Common.DataLayer
                 {
                     c.AddWithValue("@postId", item.PostId);
                     c.AddWithValue("@NewPostId", item.NewPostId);
+                    c.AddWithValue("@NewThreadId", item.NewThreadId);
                 }
             );
         }
     }
 }
+
 

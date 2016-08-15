@@ -9,10 +9,10 @@ namespace Common.DataLayer
     {
         private Func<IDataReader, MySqlThread> mapThreads = dr => new MySqlThread
         {
-            ThreadId = dr.Get<int>("Thread_Id"),
+            ThreadId = Convert.ToInt32(dr.Get<uint>("Thread_Id")),
             Title = dr.Get<string>("title"),
-            NodeId = dr.Get<int>("node_id"),
-            StarterUserId = dr.Get<int>("user_id"),
+            NodeId = Convert.ToInt32(dr.Get<uint>("node_id")),
+            StarterUserId = Convert.ToInt32(dr.Get<uint>("user_id")),
             StarterUserName = dr.Get<string>("username"),
         };
 
@@ -27,7 +27,7 @@ namespace Common.DataLayer
                 mapThreads
             );
         }
-        
+
         public void InsertThread(MySqlThread thread)
         {
             //call InsertThread(1, 'titsdsle',3, 'harfle', @tid);

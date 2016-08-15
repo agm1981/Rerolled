@@ -21,7 +21,7 @@ namespace Common.DataLayer
 
         //private Func<IDataReader, int> mapIds = dr => dr.Get<int>("PostId");
 
-        public IEnumerable<MySqlPost> GetAllThreadsInMySql()
+        public IEnumerable<MySqlPost> GetAllPostsInMySql()
         {
             return sqlH.ExecuteSet(
                 CommandType.Text,
@@ -31,7 +31,7 @@ namespace Common.DataLayer
             );
         }
         
-        public void InsertThread(MySqlPost post)
+        public void InsertPost(MySqlPost post)
         {
             
             //`InsertPost`(in threadId int, in userId int, in userna varchar(50), in postDate int, in content mediumtext, in position int, out postId int )
