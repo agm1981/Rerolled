@@ -20,6 +20,12 @@ namespace Common
             set;
         }
 
+        public int PostDate
+        {
+            get;
+            set;
+        }
+
         public override string ToString()
         {
             return $"OldPostId: {OldPostId}, NewPostId: {NewPostId}";

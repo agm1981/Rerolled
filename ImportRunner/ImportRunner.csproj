@@ -66,7 +66,7 @@
     <Compile Include="ConvertMessages.cs" />
     <Compile Include="HtmlLoader.cs" />
     <Compile Include="PostExtracter.cs" />
-    <Compile Include="PostImporter.cs" />
+    <Compile Include="PostExporterToMysql.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ThreadExporterToMySql.cs" />
@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="MysqlSP.txt" />
+    <Content Include="Sql_Update_ThreadStarter.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

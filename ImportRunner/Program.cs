@@ -15,9 +15,21 @@ namespace ImportRunner
             //new ConvertMessages().Start();
 
             // actual prod process
-            //new UserNameExporterToMySql().Start();
-            //new ThreadExporterToMySql().AddForumId(); // do this one to get the forum id locally. 
-            //new ThreadExporterToMySql().InsertAllThreads();
+            
+            
+            //new UserNameExporterToMySql().Start(); // Step 1 import Users. verify on xf_users table
+            
+            
+            
+            //new ThreadExporterToMySql().AddForumId(); // Step 2 do this one to get the forum id locally. // verify on sql.Threads
+
+            // Step 3 Run the update thread starter manual SQL if you have not, verufy the thread table
+
+
+            // Step 4//
+            // new ThreadExporterToMySql().InsertAllThreads();
+           
+            // and finally
             new PostExporterToMysql().Start();
 
         }

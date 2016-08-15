@@ -65,6 +65,10 @@ namespace ImportRunner
             foreach (Thread thread in threads)
             {
                 thread.NewForumId = FohList.FirstOrDefault(c => c.Value == thread.OldForumName)?.Id;
+                if (thread.NewForumId == null)
+                {
+                    continue;
+                }
                 rep.UpdateForumId(thread);
             }
         }

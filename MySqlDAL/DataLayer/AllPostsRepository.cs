@@ -10,6 +10,11 @@ namespace Common.DataLayer
 {
     public class AllPostsRepository : BaseRepository
     {
+        public static int DateTimeToUnixTimestamp(DateTime dateTimeInUtc)
+        {
+            return Convert.ToInt32((dateTimeInUtc - new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds);
+        }
+
         private readonly Func<IDataReader, Post> mapPosts = dr => new Post
         {
             PostId = dr.Get<int>("PostId"),
@@ -29,12 +34,13 @@ namespace Common.DataLayer
             NewPostId = dr.Get<int>("NewPostId"),
             OldPostId = dr.Get<int>("PostId"),
             NewThreadId = dr.Get<int>("NewThreadId"),
+            PostDate = DateTimeToUnixTimestamp(dr.Get<DateTime>("PostDate")),
         };
         public IEnumerable<PostImported> GetAllExportedPosts()
         {
             return sqlH.ExecuteSet(
                 CommandType.Text,
-                @"select PostId,  NewPostId, NewThreadId from Posts  where NewPostId is not null",
+                @"select PostId,  NewPostId, NewThreadId, PostDate from Posts  where NewPostId is not null",
                 null,
                 mapPostsImported
             );
@@ -43,7 +49,9 @@ namespace Common.DataLayer
         {
             return sqlH.ExecuteSet(
                 CommandType.Text,
-                @"select postId from Posts  where NewPostId is null ORDER by PostId",
+                @"select p.postId from Posts p
+                    INNER JOIN Threads t on t.threadname = p.threadname
+                where NewPostId is null and t.newForumId is not null ORDER by PostId",
                 null,
                 mapIds
             );
