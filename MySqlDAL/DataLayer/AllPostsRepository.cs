@@ -49,7 +49,7 @@ namespace Common.DataLayer
         {
             return sqlH.ExecuteSet(
                 CommandType.Text,
-                @"select p.postId from Posts p
+                @"select distinct p.postId from Posts p
                     INNER JOIN Threads t on t.threadname = p.threadname
                 where NewPostId is null and t.newForumId is not null ORDER by PostId",
                 null,

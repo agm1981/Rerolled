@@ -22,11 +22,13 @@ namespace ImportRunner
 
             HashSet<MySqlThread> mySqlThreads = new HashSet<MySqlThread>(mySqlThreadsRep.GetAllThreadsInMySql());
             HashSet<MySqlUser> mySqlUsers = new HashSet<MySqlUser>(mySqlUserRep.GetAllUsersInMySql());
-            
+
             HashSet<PostImported> postsImported = new HashSet<PostImported>(repPost.GetAllExportedPosts());
             IEnumerable<int> postsPending = repPost.GetPostsToExport().ToList();
+            long i=0;
             foreach (int postid in postsPending)
             {
+                i++;
                 // here we take an old post
                 // load it, then find the thread it belongs too.
                 // find the user it made it
@@ -34,7 +36,7 @@ namespace ImportRunner
                 // figure out if we need to switch the quote to the new item
                 // save it to mySql,
                 // update back the post Id in SQL
-                
+
 
                 Post post = repPost.GetPost(postid);
                 int mySqlThreadId = mySqlThreads.First(c => c.Title.Equals(HttpUtility.HtmlDecode(post.ThreadName) + "_imported", StringComparison.OrdinalIgnoreCase)).ThreadId;
@@ -60,7 +62,10 @@ namespace ImportRunner
                     PostDate = sqlPost.PostDate
                 });
                 repPost.SaveNewPostIdNewThreadIdOnly(post);
-                //Console.WriteLine(post.PostId);
+                if (i % 100 == 0)
+                {
+                    Console.WriteLine(post.PostId);
+                }
 
 
             }
@@ -87,15 +92,22 @@ namespace ImportRunner
                 string foundPartial = match.Value;
                 // now from here we get the name 
                 //string[] data = foundPartial.Split(' '); // either first one has it in the acse of [quote='Adam12']
-              
+
                 string quoteLine = regex.Match(foundPartial).Value;
                 // now we have [quote='Adam12' or [quote='Troll' or [quote='Eyashusa'
-               
+
                 string userName = innerREgex.Match(quoteLine).Value.Replace("'", string.Empty);
                 string oldQuote = quoteLine;
-                quoteLine = quoteLine.Replace(userName, userName + UserNameExporterToMySql.name_suffix);
+                if (userName.Length > 0) // fuck you guy named " "
+                {
+                    quoteLine = quoteLine.Replace(userName, userName + UserNameExporterToMySql.name_suffix);
+                }
+                else
+                {
+                    quoteLine = quoteLine.Replace("=''", $"='{UserNameExporterToMySql.name_suffix}'");
+                }
                 returnValue = returnValue.Replace(oldQuote, quoteLine);
-                
+
             }
 
             // now the PID
@@ -126,7 +138,7 @@ namespace ImportRunner
 
                 }
 
-        }
+            }
 
             // and the date
             reg = new Regex(@"\[quote='.+' dateline='.+'\]");
@@ -139,7 +151,7 @@ namespace ImportRunner
                 string postIdLine = data.First(c => c.Contains("pid="));
                 string datelineLine = data.First(c => c.Contains("dateline="));
 
-               
+
                 int postId = int.Parse(innerREgex2.Match(postIdLine).Value.Replace("'", string.Empty));
                 //int datelineIdId = int.Parse(innerREgex.Match(postIdLine).Value.Replace("'", string.Empty));
                 string oldQuote = datelineLine;
@@ -155,14 +167,24 @@ namespace ImportRunner
                     returnValue = returnValue.Replace(oldQuote, "]"); // respect end of tag, its always at the end anyways
                 }
 
-                    
+
 
             }
 
             // the idea is to search the post for quotes and then replace them for the new post ID of the quote.
             // also search for the name and replace it for the new name, that is easy
-            byte[] bytes = Encoding.Default.GetBytes(returnValue);
-            returnValue = Encoding.UTF8.GetString(bytes);
+
+            Encoding iso = Encoding.GetEncoding("ISO-8859-1");
+            Encoding utf8 = Encoding.UTF8;
+            byte[] utfBytes = utf8.GetBytes(returnValue);
+            byte[] isoBytes = Encoding.Convert(utf8, iso, utfBytes);
+            returnValue = iso.GetString(isoBytes);
+
+
+            //byte[] bytes = Encoding.Default.GetBytes(returnValue);
+            //Encoding iso = Encoding.GetEncoding("ISO-8859-1");
+            //returnValue = Encoding.UTF8.GetString(bytes);
+            //string test = Encoding.ASCII.GetString(bytes);
             return returnValue;
         }
 

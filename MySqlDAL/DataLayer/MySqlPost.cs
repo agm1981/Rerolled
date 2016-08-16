@@ -43,6 +43,11 @@ namespace Common.DataLayer
             set;
         }
 
+        public override string ToString()
+        {
+            return $"Position: {Position}, PostDate: {PostDate}, ThreadId: {ThreadId}, UserId: {UserId}, UserName: {UserName}";
+        }
+
         //CREATE DEFINER=`root`@`localhost` PROCEDURE `InsertPost`(in threadId int, in userId int, in userna varchar(50), in postDate int, in content mediumtext, in position int, out postId int )
     }
 }
