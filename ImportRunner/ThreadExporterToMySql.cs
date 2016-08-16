@@ -15,11 +15,17 @@ namespace ImportRunner
         {
             new IdValue(1, "Gaming Related Forum"),
             new IdValue(2, "MMORPG General Discussion"),
+            new IdValue(2, "Everquest"),
+            new IdValue(2, "World of Warcraft: Minivan Parking Only"),
+            //Everquest 
             new IdValue(3, "PC & Console Gaming"),
+            new IdValue(3, "Competitive Gaming"),
             new IdValue(3, "Other Games"),
             new IdValue(4, "Screenshots: NSFW Forum - No post minimum"),
             new IdValue(5, "Screenshots"),
             new IdValue(6, "Retard Rickshaw"),
+            new IdValue(6, "Rehab Center"),
+            //Rehab Center
             new IdValue(7, "Entertainment Forums"),
             new IdValue(8, "Movie House"),
             new IdValue(9, "TV House"),
@@ -32,12 +38,13 @@ namespace ImportRunner
             new IdValue(14, "Gravy's Sports Stadium"),
             new IdValue(15, "Grown Up Stuff"),
             new IdValue(15, "Game, Web, Software Development"),
-            
+            new IdValue(15, "Business, Finance, and Careers"),
+            new IdValue(15, "Business, Finance &amp; Career Development"),
+
             new IdValue(16, "Technology and Gadgets"),
             new IdValue(16, "Technology, Electronics and Gadgets"),
             new IdValue(17, "Travel"),
-            new IdValue(18, "Business, Finance, and Careers"),
-            new IdValue(18, "Business, Finance &amp; Career Development"),
+            
             new IdValue(18, "Job Listings and Employment Opportunities"),
             new IdValue(19, "Product Reviews"),
             //
@@ -50,6 +57,11 @@ namespace ImportRunner
             new IdValue(25, "Tabletop Gaming"),
             new IdValue(26, "Moderator Campaigning and Voting"),
             new IdValue(27, "Moderation and Comments"),
+
+            new IdValue(28, "Screenshots Hall of Fame"),
+            new IdValue(29, "Retard Rickshaw Hall of Shame"),
+
+            
         };
 
         public ThreadExporterToMySql()
