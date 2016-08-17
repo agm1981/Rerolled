@@ -10,7 +10,7 @@ namespace ImportRunner
 {
     public class UserNameExporterToMySql
     {
-        public const string name_suffix = "_shitlord";
+        public const string name_suffix = "_sl";
         private HashSet<UsersSaved> UserNamesExported
         {
             get;

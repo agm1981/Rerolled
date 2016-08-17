@@ -331,7 +331,7 @@ namespace TestsCases
             };
             var outString = content.ConvertContent();
             Assert.AreEqual(
-                "a[quote]Let's lift a glass of Kanar to the best ST character of all time.[/quote]I beg to differ.",
+                "a[QUOTE]Let's lift a glass of Kanar to the best ST character of all time.[/QUOTE]I beg to differ.",
                 outString);
            
         }
@@ -357,7 +357,7 @@ namespace TestsCases
             };
             var outString = content.ConvertContent();
             Assert.AreEqual(
-                @"a[quote='Tuco']Lend Is the best[/quote]b",
+                @"a[QUOTE=""Tuco memberPlaceHolder""]Lend Is the best[/QUOTE]b",
                 outString);
         }
 
@@ -383,7 +383,7 @@ namespace TestsCases
             };
             var outString = content.ConvertContent();
             Assert.AreEqual(
-                @"a[quote='hodj' pid='455406' dateline='1']The primary cause of Bioware going to shit is that they are focused on appealing to as broad a segment of society as possible, which means focusing on stupid shit like romance and flashy press button win bacon gameplay. This isn't remotely debateable. They've said it themselves:[/quote]b",
+                @"a[QUOTE=""hodj, post: 455406 memberPlaceHolder""]The primary cause of Bioware going to shit is that they are focused on appealing to as broad a segment of society as possible, which means focusing on stupid shit like romance and flashy press button win bacon gameplay. This isn't remotely debateable. They've said it themselves:[/QUOTE]b",
                 outString);
         
     }

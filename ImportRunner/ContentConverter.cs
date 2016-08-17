@@ -283,7 +283,7 @@ namespace ImportRunner
                     string postIdRef = separatedNode.SelectSingleNode("div/div/div[2]/a")?.GetAttributeValue("href", null);
                     if (postIdRef == null)
                     {
-                        data.Append($"[quote='{userName}']");
+                        data.Append($@"[QUOTE=""{userName}, member: MEMBERID""]");
 
                         // process specidic child node
                         HtmlNode internalNodeWitHMessage = separatedNode.SelectSingleNode("/div/div/div/div[3]");
@@ -291,15 +291,15 @@ namespace ImportRunner
                         {
                             TreeWalker(internalNodeWitHMessage);
                         }
-                        data.Append("[/quote]");
+                        data.Append("[/QUOTE]");
                     }
                     else
                     {
                         Regex reg = new Regex(@"p=\d*#");
                         string post = reg.Match(postIdRef).Value;
                         post = post.Replace("p=", string.Empty).Replace("#", string.Empty);
-                        // [quote='Intrinsic' pid='528' dateline='1469909677']Dance, I think?[/quote]
-                        data.Append($"[quote='{userName}' pid='{post}' dateline='1']");
+                        //[QUOTE="hodj, post: 1531, member: 9"]
+                        data.Append($@"[QUOTE=""{userName}, post: {post}, member: MEMBERID""]");
 
                         // process specidic child node
                         HtmlNode internalNodeWitHMessage = separatedNode.SelectSingleNode("/div/div/div/div[3]");
@@ -307,13 +307,13 @@ namespace ImportRunner
                         {
                             TreeWalker(internalNodeWitHMessage);
                         }
-                        data.Append("[/quote]");
+                        data.Append("[/QUOTE]");
                     }
                 }
                 else
                 {
                     // [quote]It's bummer we may never see him again.  Doubt he'll get the memo on the new site.[/quote]
-                    data.Append("[quote]");
+                    data.Append("[QUOTE]");
 
                     // process specidic child node
                     HtmlNode internalNodeWitHMessage = separatedNode.SelectSingleNode("//div/div/div");
@@ -321,7 +321,7 @@ namespace ImportRunner
                     {
                         TreeWalker(internalNodeWitHMessage);
                     }
-                    data.Append("[/quote]");
+                    data.Append("[/QUOTE]");
                 }
                 return;
             }

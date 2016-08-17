@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Common;
 using Common.DataLayer;
+using Common.Extensions;
 
 namespace ImportRunner
 {
@@ -24,6 +25,7 @@ namespace ImportRunner
             HashSet<MySqlUser> mySqlUsers = new HashSet<MySqlUser>(mySqlUserRep.GetAllUsersInMySql());
 
             HashSet<PostImported> postsImported = new HashSet<PostImported>(repPost.GetAllExportedPosts());
+            
             IEnumerable<int> postsPending = repPost.GetPostsToExport().ToList();
             long i=0;
             foreach (int postid in postsPending)
@@ -42,7 +44,7 @@ namespace ImportRunner
                 int mySqlThreadId = mySqlThreads.First(c => c.Title.Equals(HttpUtility.HtmlDecode(post.ThreadName) + "_imported", StringComparison.OrdinalIgnoreCase)).ThreadId;
                 MySqlPost sqlPost = new MySqlPost
                 {
-                    Content = ConvertQuotes(post.NewPostContent, postsImported),
+                    Content = ConvertQuotes(post.NewPostContent, postsImported, mySqlUsers.Where(c=>c.UserName.Contains(UserNameExporterToMySql.name_suffix))),
                     PostDate = DateTimeToUnixTimestamp(post.PostDate),
                     ThreadId = mySqlThreadId,
                     UserName = post.UserName + UserNameExporterToMySql.name_suffix,
@@ -76,52 +78,49 @@ namespace ImportRunner
             return postsImported.Count(c => c.NewThreadId == mySqlThreadId);
         }
 
-        private string ConvertQuotes(string postContent, HashSet<PostImported> postsImported)
+        private string ConvertQuotes(string postContent, HashSet<PostImported> postsImported, IEnumerable<MySqlUser> usersImported)
         {
 
             // this will select the whoile tag header 
-            //[quote='Troll' pid='15' dateline='1']I see what you did here.[/quote]Looks good.  Checking how quotes look... [quote='Eyashusa' pid='113' dateline='1']McConnell filibustering himself was funnier I think [quote='Adam12']Lol why do you keep saying
-            // it will select [quote='Troll' pid='15' dateline='1'] and [quote='Eyashusa' pid='113' dateline='1'] and [quote='Adam12']
+            //[QUOTE="Asmadai, post: 7, member: MEMBERID"]Responseeeeee[/QUOTE]quote tesssttttttt
 
             string returnValue = postContent;
-            Regex reg = new Regex(@"\[quote='.+'\]");
-            Regex regex = new Regex("quote='(.*?)'");
-            Regex innerREgex = new Regex("'(.*?)'");
-            foreach (Match match in reg.Matches(postContent))
+            Regex regForWholeQuoteBLock = new Regex(@"\[QUOTE="".+ MEMBERID""\]", RegexOptions.Compiled); // to find the whole Quote tag
+            Regex regexForUserNamePlusComma = new Regex(@"QUOTE=""(.*?),", RegexOptions.Compiled); // to find the quote user separated by ,
+            // Regex innerREgex = new Regex(@"""(.*?)""");
+            foreach (Match match in regForWholeQuoteBLock.Matches(postContent))
             {
-                string foundPartial = match.Value;
-                // now from here we get the name 
-                //string[] data = foundPartial.Split(' '); // either first one has it in the acse of [quote='Adam12']
+                string wholeQuote = match.Value;
+              
+                string userNamePlusQuote = regexForUserNamePlusComma.Match(wholeQuote).Value;
 
-                string quoteLine = regex.Match(foundPartial).Value;
-                // now we have [quote='Adam12' or [quote='Troll' or [quote='Eyashusa'
-
-                string userName = innerREgex.Match(quoteLine).Value.Replace("'", string.Empty);
-                string oldQuote = quoteLine;
+                //[QUOTE="Asmadai, post: 7, member: MEMBERID"]Responseeeeee[/QUOTE]quote tesssttttttt
+                string userName = userNamePlusQuote.Split('"')[1].Replace(",", string.Empty).TrimSafely();
+                string oldQuote = wholeQuote;
                 if (userName.Length > 0) // fuck you guy named " "
                 {
-                    quoteLine = quoteLine.Replace(userName, userName + UserNameExporterToMySql.name_suffix);
+                    wholeQuote = wholeQuote.Replace(userName, userName + UserNameExporterToMySql.name_suffix);
                 }
                 else
                 {
-                    quoteLine = quoteLine.Replace("=''", $"='{UserNameExporterToMySql.name_suffix}'");
+                    wholeQuote = wholeQuote.Replace(@""",", $@"""{UserNameExporterToMySql.name_suffix},");
                 }
-                returnValue = returnValue.Replace(oldQuote, quoteLine);
+                returnValue = returnValue.Replace(oldQuote, wholeQuote);
 
             }
 
             // now the PID
-            reg = new Regex(@"\[quote='.+' pid='.+'\]");
-            Regex innerREgex3 = new Regex("'(.*?)'");
-            foreach (Match match in reg.Matches(postContent))
+            Regex regForWholeQuoteBLockSecond = new Regex(@"\[QUOTE="".+ post: \d+, member: MEMBERID""\]", RegexOptions.Compiled);
+            Regex postIdFinder = new Regex(@"post: \d+,", RegexOptions.Compiled); 
+            foreach (Match match in regForWholeQuoteBLockSecond.Matches(returnValue))
             {
-                string foundPartial = match.Value;
+                string wholeQuote = match.Value;
                 // now from here we get the name 
-                string[] data = foundPartial.Split(' ');
-                string postIdLine = data.First(c => c.Contains("pid="));
 
 
-                int postId = int.Parse(innerREgex3.Match(postIdLine).Value.Replace("'", string.Empty));
+                string postIdLine = postIdFinder.Match(wholeQuote).Value;
+                int postId = int.Parse(postIdLine.Replace("post: ", string.Empty).Replace(",", string.Empty).TrimSafely());
+
                 string oldQuote = postIdLine;
                 // here we find the old post
                 if (postsImported.Any(c => c.OldPostId == postId))
@@ -140,32 +139,61 @@ namespace ImportRunner
 
             }
 
-            // and the date
-            reg = new Regex(@"\[quote='.+' dateline='.+'\]");
-            Regex innerREgex2 = new Regex("'(.*?)'");
-            foreach (Match match in reg.Matches(postContent))
+            // and the member Id
+
+            //Regex innerREgex2 = new Regex("'(.*?)'"); // MEMBERID
+            foreach (Match match in regForWholeQuoteBLock.Matches(returnValue))
             {
-                string foundPartial = match.Value;
-                // now from here we get the name 
-                string[] data = foundPartial.Split(' ');
-                string postIdLine = data.First(c => c.Contains("pid="));
-                string datelineLine = data.First(c => c.Contains("dateline="));
 
+                string wholeQuote = match.Value;
 
-                int postId = int.Parse(innerREgex2.Match(postIdLine).Value.Replace("'", string.Empty));
-                //int datelineIdId = int.Parse(innerREgex.Match(postIdLine).Value.Replace("'", string.Empty));
-                string oldQuote = datelineLine;
-                // here we find the old post
-                if (postsImported.Any(c => c.OldPostId == postId))
+                string userNamePlusQuote = regexForUserNamePlusComma.Match(wholeQuote).Value;
+
+                //[QUOTE="Asmadai_sl, post: 7, member: MEMBERID"]Responseeeeee[/QUOTE]quote tesssttttttt
+                string userName = userNamePlusQuote.Split('"')[1].Replace(",", string.Empty).TrimSafely();
+                string oldQuote = wholeQuote;
+
+                HashSet<MySqlUser> mySqlUsers = new HashSet<MySqlUser>(usersImported);
+                if (mySqlUsers.Any(c => c.UserName == userName))
                 {
-                    int newDateline = postsImported.First(c => c.OldPostId == postId).PostDate;
-                    datelineLine = datelineLine.Replace("1", newDateline.ToString());
-                    returnValue = returnValue.Replace(oldQuote, datelineLine);
+                    string newUserNameId = mySqlUsers.First(c => c.UserName == userName).UserId.ToString();
+                    wholeQuote = wholeQuote.Replace("MEMBERID", newUserNameId);
+                    returnValue = returnValue.Replace(oldQuote, wholeQuote);
                 }
                 else
                 {
-                    returnValue = returnValue.Replace(oldQuote, "]"); // respect end of tag, its always at the end anyways
+                    // post is not there, it may been deleted.
+
+                    returnValue = returnValue.Replace(", member: MEMBERID", "");
+
                 }
+
+
+
+
+
+
+                //string foundPartial = match.Value;
+                //// now from here we get the name 
+                //string[] data = foundPartial.Split(' ');
+                //string postIdLine = data.First(c => c.Contains("pid="));
+                //string datelineLine = data.First(c => c.Contains("dateline="));
+
+
+                //int postId = int.Parse(innerREgex2.Match(postIdLine).Value.Replace("'", string.Empty));
+                ////int datelineIdId = int.Parse(innerREgex.Match(postIdLine).Value.Replace("'", string.Empty));
+                //string oldQuote = datelineLine;
+                //// here we find the old post
+                //if (postsImported.Any(c => c.OldPostId == postId))
+                //{
+                //    int newDateline = postsImported.First(c => c.OldPostId == postId).PostDate;
+                //    datelineLine = datelineLine.Replace("1", newDateline.ToString());
+                //    returnValue = returnValue.Replace(oldQuote, datelineLine);
+                //}
+                //else
+                //{
+                //    returnValue = returnValue.Replace(oldQuote, "]"); // respect end of tag, its always at the end anyways
+                //}
 
 
 

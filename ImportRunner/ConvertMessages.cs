@@ -23,6 +23,7 @@ namespace ImportRunner
                 IEnumerable<int> batchIds = allPostsThatNeedToBeWorkedOn.Take(1000).ToList();
                 Console.WriteLine(allPostsThatNeedToBeWorkedOn.Count);
                 IEnumerable<Post> batchToWork = rep.GetPost(batchIds).ToList();
+
                 foreach (Post post in batchToWork)
                 {
                     string newconntet = new ContentConverter
