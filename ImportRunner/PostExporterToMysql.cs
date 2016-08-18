@@ -85,7 +85,7 @@ namespace ImportRunner
             //[QUOTE="Asmadai, post: 7, member: MEMBERID"]Responseeeeee[/QUOTE]quote tesssttttttt
 
             string returnValue = postContent;
-            Regex regForWholeQuoteBLock = new Regex(@"\[QUOTE="".+ MEMBERID""\]", RegexOptions.Compiled); // to find the whole Quote tag
+            Regex regForWholeQuoteBLock = new Regex(@"\[QUOTE="".*? MEMBERID""\]", RegexOptions.Compiled); // to find the whole Quote tag
             Regex regexForUserNamePlusComma = new Regex(@"QUOTE=""(.*?),", RegexOptions.Compiled); // to find the quote user separated by ,
             // Regex innerREgex = new Regex(@"""(.*?)""");
             foreach (Match match in regForWholeQuoteBLock.Matches(postContent))
@@ -110,7 +110,7 @@ namespace ImportRunner
             }
 
             // now the PID
-            Regex regForWholeQuoteBLockSecond = new Regex(@"\[QUOTE="".+ post: \d+, member: MEMBERID""\]", RegexOptions.Compiled);
+            Regex regForWholeQuoteBLockSecond = new Regex(@"\[QUOTE="".*? post: \d+, member: MEMBERID""\]", RegexOptions.Compiled);
             Regex postIdFinder = new Regex(@"post: \d+,", RegexOptions.Compiled); 
             foreach (Match match in regForWholeQuoteBLockSecond.Matches(returnValue))
             {
