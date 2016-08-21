@@ -75,6 +75,7 @@
   <ItemGroup>
     <Compile Include="DataLayer\AllPostMySqlRepository.cs" />
     <Compile Include="DataLayer\AllThreadsMySqlRepository.cs" />
+    <Compile Include="DataLayer\AllDownloadLogReppository.cs" />
     <Compile Include="DataLayer\AllUserMySqlRepository.cs" />
     <Compile Include="DataLayer\AllUsersSavedRepository.cs" />
     <Compile Include="DataLayer\AllThreadsRepository.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="DataLayer\ConnectionUtility.cs" />
     <Compile Include="DataLayer\DbHelper.cs" />
     <Compile Include="DataLayer\DisposeHelper.cs" />
+    <Compile Include="DownloadLog.cs" />
     <Compile Include="DataLayer\Extension.cs" />
     <Compile Include="DataLayer\Extensions.cs" />
     <Compile Include="DataLayer\MultiSet.cs" />

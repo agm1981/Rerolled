@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 
 namespace ImportRunner
 {
@@ -30,7 +28,10 @@ namespace ImportRunner
             //new ThreadExporterToMySql().InsertAllThreads(); // verify the thread table xf_thread
 
             // and finally
-            new PostExporterToMysql().Start();
+            //new PostExporterToMysql().Start();
+
+            // Connect to reroleld and download picture
+            new RerolledImageDownloader().Start().Wait();
 
         }
     }

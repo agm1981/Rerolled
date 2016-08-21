@@ -64,11 +64,16 @@
   <ItemGroup>
     <Compile Include="ContentConverter.cs" />
     <Compile Include="ConvertMessages.cs" />
+    <Compile Include="CookieExpiring.cs" />
     <Compile Include="HtmlLoader.cs" />
     <Compile Include="PostExtracter.cs" />
     <Compile Include="PostExporterToMysql.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RerolledImageDownloader.cs" />
+    <Compile Include="RerolledSite.cs" />
+    <Compile Include="Site.cs" />
+    <Compile Include="TaskResult.cs" />
     <Compile Include="ThreadExporterToMySql.cs" />
     <Compile Include="ThreadNameForumExtracter.cs" />
     <Compile Include="UserNameExporterToMySql.cs" />
