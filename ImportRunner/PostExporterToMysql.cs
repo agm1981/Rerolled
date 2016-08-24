@@ -45,7 +45,7 @@ namespace ImportRunner
                 MySqlPost sqlPost = new MySqlPost
                 {
                     Content = ConvertQuotes(post.NewPostContent, postsImported, mySqlUsers.Where(c=>c.UserName.Contains(UserNameExporterToMySql.name_suffix))),
-                    PostDate = DateTimeToUnixTimestamp(post.PostDate),
+                    PostDate = post.PostDate.DateTimeToUnixTimestamp(),
                     ThreadId = mySqlThreadId,
                     UserName = post.UserName + UserNameExporterToMySql.name_suffix,
                     UserId =
@@ -216,10 +216,7 @@ namespace ImportRunner
             return returnValue;
         }
 
-        public static int DateTimeToUnixTimestamp(DateTime dateTimeInUtc)
-        {
-            return Convert.ToInt32((dateTimeInUtc - new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds);
-        }
+       
 
 
     }

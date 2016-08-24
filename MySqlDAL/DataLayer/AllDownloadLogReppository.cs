@@ -9,7 +9,16 @@ namespace Common.DataLayer
         private readonly Func<IDataReader, DownloadLog> mapLogs = dr => new DownloadLog
         {
             ImageId = dr.Get<int>("ImageId"),
-            Error = dr.GetSafe<string>("Error")};
+            Error = dr.GetSafe<string>("Error"),
+            UserId = dr.GetSafe<int>("UserId"),
+            FileHash = dr.GetSafe<string>("FileHash"),
+            FileName = dr.GetSafe<string>("FileName"),
+            FileSize = dr.GetSafe<int>("FileSize"),
+            Height = dr.GetSafe<int>("Height"),
+            Width = dr.GetSafe<int>("Width"),
+            MimeType = dr.GetSafe<string>("MimeType"),
+            UploadDate = dr.GetSafe<int>("UploadDate")
+        };
 
         private Func<IDataReader, int> mapIds = dr => dr.Get<int>("ImageId");
 
@@ -22,15 +31,27 @@ namespace Common.DataLayer
                 mapLogs
             );
         }
-        //public IEnumerable<Thread> GetAllLogThreadsToExport()
-        //{
-        //    return sqlH.ExecuteSet(
-        //        CommandType.Text,
-        //        @"SELECT * FROM Threads where newThreadId is null and newForumid is not null",
-        //        null,
-        //        mapThreads
-        //    );
-        //}
+        public DownloadLog GetLogById(int imageId)
+        {
+            return sqlH.ExecuteSingle(
+                CommandType.Text,
+                @"SELECT * FROM DownloadLogs where imageID = @imageId",
+                c =>
+                {
+                    c.AddWithValue("@ImageId", imageId);
+                },
+                mapLogs
+            );
+        }
+        public IEnumerable<int> GetAllLogsToComplete()
+        {
+            return sqlH.ExecuteSet(
+                CommandType.Text,
+                @"SELECT imageId FROM DownloadLogs where UploadDate is null and Error is null",
+                null,
+                mapIds
+            );
+        }
 
         public void InsertLog(DownloadLog item)
         {
@@ -54,7 +75,15 @@ namespace Common.DataLayer
         public void UpdateLog(DownloadLog item)
         {
             string sql = @"Update [dbo].[DownloadLogs]
-                    set Error = @Error
+                    set  [Error]    = @Error
+                        ,[UserId]   = @UserId
+                        ,[FileHash] = @FileHash
+                        ,[FileName] = @FileName
+                        ,[FileSize] = @FileSize
+                        ,[Height]   = @Height
+                        ,[Width]    = @Width
+                        ,[MimeType] = @MimeType
+                        ,[UploadDate] = @UploadDate
                     where ImageId = @ImageId                    
                    ";
 
@@ -65,6 +94,14 @@ namespace Common.DataLayer
                        {
                            c.AddWithValue("@ImageId", item.ImageId);
                            c.AddWithValue("@Error", item.Error);
+                           c.AddWithValue("@UserId", item.UserId);
+                           c.AddWithValue("@FileHash", item.FileHash);
+                           c.AddWithValue("@FileName", item.FileName);
+                           c.AddWithValue("@FileSize", item.FileSize);
+                           c.AddWithValue("@Height", item.Height);
+                           c.AddWithValue("@Width", item.Width);
+                           c.AddWithValue("@MimeType", item.MimeType);
+                           c.AddWithValue("@UploadDate", item.UploadDate);
                        }
                    );
         }
