@@ -89,7 +89,7 @@ namespace Common
         public void CompleteFields(FileInfo fileData)
         {
             FileHash = ComputeMd5(fileData);
-            FileName = $"rrr_{fileData.Name}.{fileData.Extension}";
+            FileName = $"rrr_img_{fileData.Name}";
             FileSize = Convert.ToInt32(fileData.Length);
             MimeType = ConvertToMime(fileData.Extension);
             UploadDate = DateTime.UtcNow.DateTimeToUnixTimestamp();
