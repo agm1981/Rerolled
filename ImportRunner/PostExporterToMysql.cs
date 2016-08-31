@@ -25,9 +25,9 @@ namespace ImportRunner
             HashSet<MySqlUser> mySqlUsers = new HashSet<MySqlUser>(mySqlUserRep.GetAllUsersInMySql());
 
             HashSet<PostImported> postsImported = new HashSet<PostImported>(repPost.GetAllExportedPosts());
-            
-            IEnumerable<int> postsPending = repPost.GetPostsToExport().ToList();
-            long i=0;
+
+            HashSet<int> postsPending = new HashSet<int>(repPost.GetPostsToExport());
+            long i = 0;
             foreach (int postid in postsPending)
             {
                 i++;
@@ -41,16 +41,100 @@ namespace ImportRunner
 
 
                 Post post = repPost.GetPost(postid);
-                int mySqlThreadId = mySqlThreads.First(c => c.Title.Equals(HttpUtility.HtmlDecode(post.ThreadName) + "_imported", StringComparison.OrdinalIgnoreCase)).ThreadId;
+                int? mySqlThreadId = mySqlThreads.FirstOrDefault(c => c.Title.Equals(HttpUtility.HtmlDecode(post.ThreadName) + "_imported", StringComparison.OrdinalIgnoreCase))?.ThreadId;
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("Father Hires In-Game", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 6375;
+                }
+                if (mySqlThreadId == null && post.ThreadName.Contains("ALLAH AKBAR WE JIHAD FOR MARIO", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 3450;
+                }
+                if (mySqlThreadId == null && post.ThreadName.EndsWith("are fucking stupid and should go away.", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 3463;
+                }
+
+
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("Blue Is The Warmest Color", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 5900;
+                }
+
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("Gabriel Garc", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 4772;
+                }
+
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("Kajiimagi", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 3531;
+                }
+
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("Nude Beach Blow Job Jet Ski Fight Leads to W", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 6065;
+                }
+                if (mySqlThreadId == null && post.ThreadName.EndsWith("[Kickstarter - PC voxel-based open world RPG]", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 1357;
+                }
+
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("Santander", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 4267;
+                }
+
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("Twitch Plays Pok", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 5913;
+                }
+
+                if (mySqlThreadId == null && post.ThreadName.EndsWith("Series Picked Up By Syfy", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 2773;
+                }
+
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("NBA 2013", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 1029;
+                }
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("Scarlett Johansson Named", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 909;
+                }
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("May Book of the Month: The Shadow of the Wind by Carlos Ruiz", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 4125;
+                }
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("France!  Jtai cass", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 4399;
+                }
+
+                if (mySqlThreadId == null && post.ThreadName.StartsWith("Happy Chinese New Year", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 3352;
+                }
+
+                if (mySqlThreadId == null && post.ThreadName.EndsWith("tal Legend", StringComparison.OrdinalIgnoreCase))
+                {
+                    mySqlThreadId = 6118;
+                }
+                if (mySqlThreadId == null)
+                {
+                    continue;
+                    throw new Exception($" need case for {post.ThreadName}");
+                }
                 MySqlPost sqlPost = new MySqlPost
                 {
-                    Content = ConvertQuotes(post.NewPostContent, postsImported, mySqlUsers.Where(c=>c.UserName.Contains(UserNameExporterToMySql.name_suffix))),
-                    PostDate = post.PostDate.DateTimeToUnixTimestamp(),
-                    ThreadId = mySqlThreadId,
+                    Content = ConvertQuotes(post.NewPostContent, postsImported, mySqlUsers),
+                    PostDate = DateTimeToUnixTimestamp(post.PostDate),
+                    ThreadId = mySqlThreadId.Value,
                     UserName = post.UserName + UserNameExporterToMySql.name_suffix,
                     UserId =
                         mySqlUsers.First(c => c.UserName == post.UserName + UserNameExporterToMySql.name_suffix).UserId,
-                    Position = GetPositionInThread(postsImported, mySqlThreadId),
+                    Position = GetPositionInThread(postsImported, mySqlThreadId.Value),
                 };
                 mySqlPostRep.InsertPost(sqlPost);
                 post.NewPostId = sqlPost.PostId;
@@ -60,13 +144,13 @@ namespace ImportRunner
                 {
                     OldPostId = postid,
                     NewPostId = sqlPost.PostId,
-                    NewThreadId = mySqlThreadId,
+                    NewThreadId = mySqlThreadId.Value,
                     PostDate = sqlPost.PostDate
                 });
                 repPost.SaveNewPostIdNewThreadIdOnly(post);
                 if (i % 100 == 0)
                 {
-                    Console.WriteLine(post.PostId);
+                    Console.WriteLine($"{post.PostId} left: {postsPending.Count - i} ");
                 }
 
 
@@ -78,7 +162,7 @@ namespace ImportRunner
             return postsImported.Count(c => c.NewThreadId == mySqlThreadId);
         }
 
-        private string ConvertQuotes(string postContent, HashSet<PostImported> postsImported, IEnumerable<MySqlUser> usersImported)
+        private string ConvertQuotes(string postContent, HashSet<PostImported> postsImported, HashSet<MySqlUser> usersImported)
         {
 
             // this will select the whoile tag header 
@@ -91,7 +175,7 @@ namespace ImportRunner
             foreach (Match match in regForWholeQuoteBLock.Matches(postContent))
             {
                 string wholeQuote = match.Value;
-              
+
                 string userNamePlusQuote = regexForUserNamePlusComma.Match(wholeQuote).Value;
 
                 //[QUOTE="Asmadai, post: 7, member: MEMBERID"]Responseeeeee[/QUOTE]quote tesssttttttt
@@ -111,7 +195,7 @@ namespace ImportRunner
 
             // now the PID
             Regex regForWholeQuoteBLockSecond = new Regex(@"\[QUOTE="".*? post: \d+, member: MEMBERID""\]", RegexOptions.Compiled);
-            Regex postIdFinder = new Regex(@"post: \d+,", RegexOptions.Compiled); 
+            Regex postIdFinder = new Regex(@"post: \d+,", RegexOptions.Compiled);
             foreach (Match match in regForWholeQuoteBLockSecond.Matches(returnValue))
             {
                 string wholeQuote = match.Value;
@@ -153,10 +237,10 @@ namespace ImportRunner
                 string userName = userNamePlusQuote.Split('"')[1].Replace(",", string.Empty).TrimSafely();
                 string oldQuote = wholeQuote;
 
-                HashSet<MySqlUser> mySqlUsers = new HashSet<MySqlUser>(usersImported);
-                if (mySqlUsers.Any(c => c.UserName == userName))
+
+                if (usersImported.Any(c => c.UserName == userName))
                 {
-                    string newUserNameId = mySqlUsers.First(c => c.UserName == userName).UserId.ToString();
+                    string newUserNameId = usersImported.First(c => c.UserName == userName).UserId.ToString();
                     wholeQuote = wholeQuote.Replace("MEMBERID", newUserNameId);
                     returnValue = returnValue.Replace(oldQuote, wholeQuote);
                 }
@@ -216,7 +300,10 @@ namespace ImportRunner
             return returnValue;
         }
 
-       
+        public static int DateTimeToUnixTimestamp(DateTime dateTimeInUtc)
+        {
+            return Convert.ToInt32((dateTimeInUtc - new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc)).TotalSeconds);
+        }
 
 
     }

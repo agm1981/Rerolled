@@ -18,3 +18,180 @@ from Threads t inner join #StarterPostThread st on st.ThreadName = t.ThreadName
 
 
 drop table #StarterPostThread
+;
+
+
+update xf_thread t inner join 
+(select a.thread_id, count(b.post_id) as countt from xf_thread a inner join xf_post b on a.thread_id = b.thread_id
+where a.title like '%_imported'
+group by a.thread_id) as x on x.thread_id = t.thread_id
+set t.reply_count = x.countt;
+
+INSERT INTO xenforo.xf_user_authenticate
+(user_id,
+scheme_class,
+data,
+remember_key)
+select user_Id,
+(select scheme_class from xf_user_authenticate where user_id = 735),
+(select data from xf_user_authenticate where user_id = 735),
+(select remember_key from xf_user_authenticate where user_id = 735)
+ from xf_user where email like '%gmailish.com'
+;
+INSERT INTO xf_user_option
+(user_id,
+show_dob_year,
+show_dob_date,
+content_show_signature,
+receive_admin_email,
+email_on_conversation,
+is_discouraged,
+default_watch_state,
+alert_optout,
+enable_rte,
+enable_flash_uploader,
+use_tfa,
+uix_sticky_navigation,
+uix_sticky_userbar,
+uix_sticky_sidebar,
+uix_width,
+uix_collapse_stuck_threads,
+uix_sidebar,
+uix_collapse_user_info,
+uix_collapse_signature,
+custom_messages)
+select user_Id,
+(select show_dob_year from xf_user_option where user_id = 735),
+(select show_dob_date from xf_user_option where user_id = 735),
+(select content_show_signature from xf_user_option where user_id = 735),
+(select receive_admin_email from xf_user_option where user_id = 735),
+(select email_on_conversation from xf_user_option where user_id = 735),
+(select is_discouraged from xf_user_option where user_id = 735),
+(select default_watch_state from xf_user_option where user_id = 735),
+(select alert_optout from xf_user_option where user_id = 735),
+(select enable_rte from xf_user_option where user_id = 735),
+(select enable_flash_uploader from xf_user_option where user_id = 735),
+(select use_tfa from xf_user_option where user_id = 735),
+(select uix_sticky_navigation from xf_user_option where user_id = 735),
+(select uix_sticky_userbar from xf_user_option where user_id = 735),
+(select uix_sticky_sidebar from xf_user_option where user_id = 735),
+(select uix_width from xf_user_option where user_id = 735),
+(select uix_collapse_stuck_threads from xf_user_option where user_id = 735),
+(select uix_sidebar from xf_user_option where user_id = 735),
+(select uix_collapse_user_info from xf_user_option where user_id = 735),
+(select uix_collapse_signature from xf_user_option where user_id = 735),
+(select custom_messages from xf_user_option where user_id = 735)
+ from xf_user where email like '%gmailish.com'
+;
+INSERT INTO xf_user_profile
+(user_id,
+dob_day,
+dob_month,
+dob_year,
+status,
+status_date,
+status_profile_post_id,
+signature,
+homepage,
+location,
+occupation,
+following,
+ignored,
+csrf_token,
+avatar_crop_x,
+avatar_crop_y,
+about,
+custom_fields,
+external_auth,
+password_date)
+select user_Id,
+(select dob_day from xf_user_profile where user_id = 735),
+(select dob_month from xf_user_profile where user_id = 735),
+(select dob_year from xf_user_profile where user_id = 735),
+(select status from xf_user_profile where user_id = 735),
+(select status_date from xf_user_profile where user_id = 735),
+(select status_profile_post_id from xf_user_profile where user_id = 735),
+(select signature from xf_user_profile where user_id = 735),
+(select homepage from xf_user_profile where user_id = 735),
+(select location from xf_user_profile where user_id = 735),
+(select occupation from xf_user_profile where user_id = 735),
+(select following from xf_user_profile where user_id = 735),
+(select ignored from xf_user_profile where user_id = 735),
+(select csrf_token from xf_user_profile where user_id = 735),
+(select avatar_crop_x from xf_user_profile where user_id = 735),
+(select avatar_crop_y from xf_user_profile where user_id = 735),
+(select about from xf_user_profile where user_id = 735),
+(select custom_fields from xf_user_profile where user_id = 735),
+(select external_auth from xf_user_profile where user_id = 735),
+(select password_date from xf_user_profile where user_id = 735)
+ from xf_user where email like '%gmailish.com';
+
+ INSERT INTO xenforo.xf_user_privacy
+(user_id,
+allow_view_profile,
+allow_post_profile,
+allow_send_personal_conversation,
+allow_view_identities,
+allow_receive_news_feed)
+
+select user_Id,
+(select allow_view_profile from xf_user_privacy where user_id = 735),
+(select allow_post_profile from xf_user_privacy where user_id = 735),
+(select allow_send_personal_conversation from xf_user_privacy where user_id = 735),
+(select allow_view_identities from xf_user_privacy where user_id = 735),
+(select allow_receive_news_feed from xf_user_privacy where user_id = 735)
+ from xf_user where user_id = 7395
+ ;
+
+
+ -- update for lifecycle
+
+ 
+-- count;
+update xf_thread t inner join 
+(select a.thread_id, count(b.post_id) as countt 
+from xf_thread a inner join xf_post b on a.thread_id = b.thread_id
+where a.title like '%_imported'
+group by a.thread_id) as x on x.thread_id = t.thread_id
+set 
+t.reply_count = x.countt;
+
+
+
+-- update first post
+update xf_thread t inner join 
+(select x.* from xf_post x
+inner join 
+(select min(post_id) first_post_id, a.thread_id from xf_post a inner join xf_thread b on a.thread_id = b.thread_id
+where b.title like '%_imported'
+group by a.thread_id) as FirstPost on FirstPost.first_post_id = x.post_id) as FirstPostInfo on FirstPostInfo.thread_id = t.thread_Id
+set
+	t.first_post_id = FirstPostInfo.post_id;
+
+
+-- LastPost_username and date and id   
+update xf_thread t inner join 
+    (select last_post_id, x.post_date, x.user_id, x.username, x.thread_Id from xf_post x
+inner join 
+(select max(post_id) last_post_id, a.thread_id from xf_post a inner join xf_thread b on a.thread_id = b.thread_id
+where b.title like '%_imported'
+group by a.thread_id) as LastPost on LastPost.last_post_id = x.post_id) as lastPostInfo on lastPostInfo.thread_Id = t.thread_Id
+set
+	t.last_post_date = lastPostInfo.post_date,
+    t.last_post_id = lastPostInfo.last_post_id,
+    t.last_post_username = lastPostInfo.username,
+    t.last_post_user_id = lastPostInfo.user_id;
+    
+    
+
+    
+    -- now the outer forum page properties
+    update xf_forum t inner join
+    (select  a.node_id, sum(reply_count) reply_count, count(a.thread_id) as thread_count from xf_thread a 
+group by a.node_id) as node on node.node_id = t.node_Id
+set t.message_count= node.reply_count,
+t.discussion_count = thread_count
+;
+
+
+;
