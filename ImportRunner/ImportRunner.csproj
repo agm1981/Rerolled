@@ -65,7 +65,9 @@
     <Compile Include="ContentConverter.cs" />
     <Compile Include="ConvertMessages.cs" />
     <Compile Include="CookieExpiring.cs" />
+    <Compile Include="FileName.cs" />
     <Compile Include="HtmlLoader.cs" />
+    <Compile Include="PictureUrlConverter.cs" />
     <Compile Include="PostExtracter.cs" />
     <Compile Include="PostExporterToMysql.cs" />
     <Compile Include="Program.cs" />

@@ -19,8 +19,12 @@ namespace Common.DataLayer
             
         };
 
-        //private Func<IDataReader, int> mapIds = dr => dr.Get<int>("PostId");
-
+        private readonly  Func<IDataReader, MySqlPost> mapIncompletePosts = dr => new MySqlPost
+        {
+            
+            PostId = Convert.ToInt32(dr.Get<uint>("post_Id")),
+            Content = dr.Get<string>("message")
+        };
         public IEnumerable<MySqlPost> GetAllPostsInMySql()
         {
             return sqlH.ExecuteSet(
@@ -30,7 +34,33 @@ namespace Common.DataLayer
                 mapPosts
             );
         }
-        
+
+        public IEnumerable<MySqlPost> GetAllPostIncompleteInMySql()
+        {
+            return sqlH.ExecuteSet(
+                CommandType.Text,
+                @"SELECT post_Id, message FROM xf_post Where message like '%www.rerolled.org/attachment.php%' order by post_Id",
+                null,
+                mapIncompletePosts
+            );
+        }
+        public void UpdatePostContent(MySqlPost item)
+        {
+            string sql = @"Update xf_Post
+                    set message = @Content
+                    where post_id = @PostId                    
+                   ";
+
+            sqlH.ExecuteNonQuery(
+                       CommandType.Text,
+                       sql,
+                       c =>
+                       {
+                           c.AddWithValue("@PostId", item.PostId);
+                           c.AddWithValue("@Content", item.Content);
+                       }
+                   );
+        }
         public void InsertPost(MySqlPost post)
         {
             
