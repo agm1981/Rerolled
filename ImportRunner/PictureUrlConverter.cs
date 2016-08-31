@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -23,6 +24,7 @@ namespace ImportRunner
             //IEnumerable<MySqlPost> batch = workListItems.Take(1000);
             DirectoryInfo dir = new DirectoryInfo(ConfigurationManager.AppSettings["OutputFolder"]);
             HashSet<string> files = new HashSet<string>(dir.GetFiles("*.*").Select(c => c.Name));
+            int i = 0;
             foreach (MySqlPost post in workListItems)
             {
                 string oldPost = post.Content;
@@ -31,6 +33,12 @@ namespace ImportRunner
                 {
                     rep.UpdatePostContent(post);
                 }
+                if (i % 100 == 0)
+                {
+                    Console.WriteLine(post.PostId);
+                }
+                i++;
+
             }
         }
 
