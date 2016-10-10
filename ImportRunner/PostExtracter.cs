@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using Common;
@@ -46,8 +47,17 @@ namespace ImportRunner
             };
 
         }
+        private void BuildThreadFoh()
+        {
+            //HtmlNode breadCrumb = HtmlNode.CreateNode(node.GetNodesByTagAndValue("div", "breadcrumb").First().OuterHtml);
+            Thread = new Thread
+            {
+                ThreadName = FileName.Replace(".html", string.Empty)
+            };
 
-        public void ExtractPosts()
+        }
+
+        public void ExtractRerolledPosts()
         {
             HtmlDocument doc = new HtmlDocument();
             Posts = new HashSet<Post>();
@@ -62,6 +72,75 @@ namespace ImportRunner
                 {
                     HtmlNode separatedNode = HtmlNode.CreateNode(post.OuterHtml);
                     var item = separatedNode.Attributes["id"]?.Value;
+
+
+                    string date = separatedNode.GetNodesByTagAndValue("span", "date", "class").First().InnerText.Trim().Replace("&nbsp;", String.Empty).Replace(",", " ");
+                    //string time = node.GetNodesByTagAndValue("span", "time", "class").First().InnerText.Trim();
+                    //04-14-2015 01:35 PM
+                    Post p = new Post();
+                    if (!date.IsNullOrEmpty())
+                    {
+                        date = date.Replace("Yesterday", "08-10-2016").Replace("Today", "08-11-2016");
+                        DateTime createdOn = DateTime.Parse(date);
+                        p.PostDate = createdOn;
+                    }
+
+
+
+                    string userName = separatedNode.GetNodesByTagAndValue("a", "username", "class").FirstOrDefault()?.InnerText ??
+                                      separatedNode.GetNodesByTagAndValue("span", "username", "class").FirstOrDefault()?.InnerText;
+                    if (userName.Length > 50)
+                    {
+                        // mistake getting the thing, go alternate
+                        string uname =
+                        separatedNode.GetNodesByTagAndValue("a", "username", "class")
+                            .FirstOrDefault()?.GetAttributeValue("title", string.Empty);
+
+                        uname = uname?.Replace("is offline", String.Empty).Replace("is online", String.Empty).TrimSafely();
+                        if (!uname.IsNullOrWhiteSpace())
+                        {
+                            userName = uname;
+                        }
+
+                    }
+                    p.UserName = userName;
+                    p.PostContent = separatedNode.SelectSingleNode("//blockquote").OuterHtml;
+                    p.ThreadName = Thread.ThreadName;
+                    if ((item != null) && !item.IsNullOrEmpty())
+                    {
+                        p.PostId = int.Parse(item.Replace("post_", ""));
+                    }
+                    if (userName == null || p.PostContent == null || p.PostDate == DateTime.MinValue ||
+                        p.PostId == default(int))
+                    {
+                        throw new Exception("failure parsing");
+                    }
+                    Posts.Add(p);
+                }
+            }
+
+
+        }
+    
+        public void ExtractFoHPosts()
+        {
+            HtmlDocument doc = new HtmlDocument();
+            Posts = new HashSet<Post>();
+            doc.LoadHtml(Html.Replace("'","\""));
+            Regex rg = new Regex(@"<body>.*<\/body>", RegexOptions.Singleline|RegexOptions.IgnoreCase);
+            string body = rg.Match(Html.Replace("'", "\"")).Value;
+
+            HtmlNode node = HtmlNode.CreateNode(body);
+
+            BuildThreadFoh();
+
+            var posts = node.GetNodesByTagAndValue("div", "post", "class").ToList();
+            if (posts.Any())
+            {
+                foreach (HtmlNode post in posts)
+                {
+                    HtmlNode separatedNode = HtmlNode.CreateNode(post.OuterHtml);
+                    var item = separatedNode.GetNodesByTagAndValue("div", "header", "class").First().FirstChild.InnerText;
                     
                     
                     string date = separatedNode.GetNodesByTagAndValue("span", "date", "class").First().InnerText.Trim().Replace("&nbsp;",String.Empty).Replace(",", " ");

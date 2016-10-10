@@ -37,7 +37,10 @@ namespace ImportRunner
 
 
             //new FileName().Start();
-            new PictureUrlConverter().Start();
+            //new PictureUrlConverter().Start();
+
+            // second part 
+            new HtmlLoader().Start();
         }
     }
 }

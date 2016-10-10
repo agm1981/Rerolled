@@ -22,15 +22,15 @@ namespace ImportRunner
             AllPostsRepository repository = new AllPostsRepository();
             AllThreadsRepository repository2 = new AllThreadsRepository();
             PostList = new HashSet<int>(repository.GetAllPosts());
-            ThreadNames = new HashSet<string>(repository2.GetAllThreads().Select(c=>c.CombinedName));
+            ThreadNames = new HashSet<string>(repository2.GetAllThreads().Select(c => c.CombinedName));
             DirectoryInfo dir = new DirectoryInfo(folderLocation);
             if (!dir.Exists)
             {
                 throw new Exception("Missing Folder Or Access");
             }
             string s;
-            
-            foreach (FileInfo file in dir.EnumerateFiles("showthread*.html"))
+
+            foreach (FileInfo file in dir.EnumerateFiles("*.html").OrderBy(c => c.Name))
             {
                 //Console.WriteLine($"{file.Name}");
                 using (StreamReader sr = file.OpenText())
@@ -42,7 +42,7 @@ namespace ImportRunner
                     FileName = file.Name,
                     Html = s
                 };
-                pst.ExtractPosts();
+                pst.ExtractFoHPosts();
                 SaveData(pst, repository);
                 ThreadNameForumExtracter trd = new ThreadNameForumExtracter
                 {
@@ -53,38 +53,38 @@ namespace ImportRunner
                 SaveThreadData(trd, repository2);
 
             }
-        //    dir = new DirectoryInfo(folderLocation2);
-        //    if (!dir.Exists)
-        //    {
-        //        throw new Exception("Missing Folder Or Access");
-        //    }
-            
-
-        //    foreach (FileInfo file in dir.EnumerateFiles("showthread*.html"))
-        //    {
-        //        //Console.WriteLine($"{file.Name}");
-        //        using (StreamReader sr = file.OpenText())
-        //        {
-        //            s = sr.ReadToEnd();
-        //        }
-        //        //PostExtracter pst = new PostExtracter
-        //        //{
-        //        //    FileName = file.Name,
-        //        //    Html = s
-        //        //};
-        //        //pst.ExtractPosts();
-        //        //SaveData(pst, repository);
-
-        //        ThreadNameForumExtracter trd = new ThreadNameForumExtracter
-        //        {
-        //            FileName = file.Name,
-        //            Html = s
-        //        };
-        //        trd.ExtractThreads();
-        //        SaveThreadData(trd, repository2);
+            //    dir = new DirectoryInfo(folderLocation2);
+            //    if (!dir.Exists)
+            //    {
+            //        throw new Exception("Missing Folder Or Access");
+            //    }
 
 
-        //    }
+            //    foreach (FileInfo file in dir.EnumerateFiles("showthread*.html"))
+            //    {
+            //        //Console.WriteLine($"{file.Name}");
+            //        using (StreamReader sr = file.OpenText())
+            //        {
+            //            s = sr.ReadToEnd();
+            //        }
+            //        //PostExtracter pst = new PostExtracter
+            //        //{
+            //        //    FileName = file.Name,
+            //        //    Html = s
+            //        //};
+            //        //pst.ExtractFoHPosts();
+            //        //SaveData(pst, repository);
+
+            //        ThreadNameForumExtracter trd = new ThreadNameForumExtracter
+            //        {
+            //            FileName = file.Name,
+            //            Html = s
+            //        };
+            //        trd.ExtractThreads();
+            //        SaveThreadData(trd, repository2);
+
+
+            //    }
 
         }
 
@@ -122,7 +122,7 @@ namespace ImportRunner
             {
                 return;
             }
-            
+
             repository.InsertThread(trd.Thread);
             ThreadNames.Add(trd.Thread.CombinedName);
         }
