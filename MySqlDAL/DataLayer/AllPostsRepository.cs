@@ -121,18 +121,18 @@ namespace Common.DataLayer
         {
             string sql = @"
 
-                UPDATE Posts
-                SET
-                [UserName] = @UserName
-                ,[PostContent] = @PostContent
-                ,[PostDate] = @PostDate
-                ,[ThreadName] =  @ThreadName
-                ,[NewPostContent] = @NewPostContent
+                --UPDATE Posts
+                --SET
+                --[UserName] = @UserName
+                --,[PostContent] = @PostContent
+                --,[PostDate] = @PostDate
+                --,[ThreadName] =  @ThreadName
+                --,[NewPostContent] = @NewPostContent
                 
-                WHERE postId = @postId
+                --WHERE postId = @postId
         
-                if (SELECT @@ROWCOUNT) = 0
-                BEGIN
+                --if (SELECT @@ROWCOUNT) = 0
+                --BEGIN
 
                 INSERT INTO [dbo].[Posts]
                 ([PostId]
@@ -148,7 +148,7 @@ namespace Common.DataLayer
                     ,@postDate
                     ,@threadName
                     ,@newPostContent)
-                END
+                --END
                     ";
 
             sqlH.ExecuteNonQuery(

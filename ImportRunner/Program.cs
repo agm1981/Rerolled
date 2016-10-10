@@ -40,7 +40,8 @@ namespace ImportRunner
             //new PictureUrlConverter().Start();
 
             // second part 
-            new HtmlLoader().Start();
+             // new HtmlLoader().Start(); <- done in Dtabsae already
+            //
         }
     }
 }

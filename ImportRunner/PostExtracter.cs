@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -49,11 +50,23 @@ namespace ImportRunner
         }
         private void BuildThreadFoh()
         {
-            //HtmlNode breadCrumb = HtmlNode.CreateNode(node.GetNodesByTagAndValue("div", "breadcrumb").First().OuterHtml);
+
+            string filenameA = Path.GetFileNameWithoutExtension(FileName);
+            Regex regex = new Regex(@"\d+$");
+            if (regex.Match(filenameA).Success)
+            {
+                // ends with digit.
+                
+                filenameA = filenameA.Substring(0, filenameA.LastIndexOf("-", StringComparison.OrdinalIgnoreCase));
+            }
             Thread = new Thread
             {
-                ThreadName = FileName.Replace(".html", string.Empty)
+                ThreadName = filenameA
             };
+
+
+
+
 
         }
 
@@ -141,15 +154,15 @@ namespace ImportRunner
                 {
                     HtmlNode separatedNode = HtmlNode.CreateNode(post.OuterHtml);
                     var item = separatedNode.GetNodesByTagAndValue("div", "header", "class").First().FirstChild.InnerText;
-                    
-                    
-                    string date = separatedNode.GetNodesByTagAndValue("span", "date", "class").First().InnerText.Trim().Replace("&nbsp;",String.Empty).Replace(",", " ");
-                    //string time = node.GetNodesByTagAndValue("span", "time", "class").First().InnerText.Trim();
-                    //04-14-2015 01:35 PM
+
+                    // format is "11-15-2004, 05:03 PM"
+
+                    string date = item.Trim();
+                   
                     Post p = new Post();
                     if (!date.IsNullOrEmpty())
                     {
-                        date = date.Replace("Yesterday", "08-10-2016").Replace("Today", "08-11-2016");
+                        date = date.Replace("Yesterday", "06-05-2013").Replace("Today", "06-06-2013");
                         DateTime createdOn = DateTime.Parse(date);
                         p.PostDate = createdOn;
                     }
@@ -173,12 +186,15 @@ namespace ImportRunner
 
                     }
                     p.UserName = userName;
-                    p.PostContent = separatedNode.SelectSingleNode("//blockquote").OuterHtml;
+                    p.PostContent = separatedNode.GetNodesByTagAndValue("span", "content", "class").First().InnerHtml;
                     p.ThreadName = Thread.ThreadName;
-                    if ((item != null) && !item.IsNullOrEmpty())
+                    string postIdNode = separatedNode.GetNodesByTagAndValue("div", "header", "class").First().Children().Skip(1).First().InnerText.Trim();
+                    if (!item.IsNullOrEmpty())
                     {
-                        p.PostId= int.Parse(item.Replace("post_", ""));
+                        string id = postIdNode.Split(' ').First();
+                        p.PostId= int.Parse(id.Replace("#", ""));
                     }
+
                     if (userName == null || p.PostContent == null || p.PostDate == DateTime.MinValue ||
                         p.PostId == default(int))
                     {
