@@ -17,6 +17,7 @@ namespace Common.DataLayer
 
         private readonly Func<IDataReader, Post> mapPosts = dr => new Post
         {
+            Id = dr.Get<int>("Id"),
             PostId = dr.Get<int>("PostId"),
             UserName = dr.GetSafe<string>("UserName"),
             PostDate = dr.GetSafe<DateTime>("PostDate"),
@@ -27,12 +28,12 @@ namespace Common.DataLayer
             NewThreadId = dr.GetSafe<int?>("NewThreadId")
         };
 
-        private readonly Func<IDataReader, int> mapIds = dr => dr.Get<int>("PostId");
+        private readonly Func<IDataReader, int> mapIds = dr => dr.Get<int>("Id");
 
         private readonly Func<IDataReader, PostImported> mapPostsImported = dr => new PostImported
         {
             NewPostId = dr.Get<int>("NewPostId"),
-            OldPostId = dr.Get<int>("PostId"),
+            OldPostId = dr.Get<int>("Id"),
             NewThreadId = dr.Get<int>("NewThreadId"),
             PostDate = DateTimeToUnixTimestamp(dr.Get<DateTime>("PostDate")),
         };
@@ -40,7 +41,7 @@ namespace Common.DataLayer
         {
             return sqlH.ExecuteSet(
                 CommandType.Text,
-                @"select PostId,  NewPostId, NewThreadId, PostDate from Posts  where NewPostId is not null",
+                @"select id, PostId,  NewPostId, NewThreadId, PostDate from Posts  where NewPostId is not null  order by threadname, postid",
                 null,
                 mapPostsImported
             );
@@ -49,9 +50,9 @@ namespace Common.DataLayer
         {
             return sqlH.ExecuteSet(
                 CommandType.Text,
-                @"select distinct p.postId from Posts p
+                @"select distinct p.Id from Posts p
                     INNER JOIN Threads t on t.threadname = p.threadname
-                where NewPostId is null and t.newForumId is not null ORDER by PostId",
+                where NewPostId is null and t.newForumId is not null",
                 null,
                 mapIds
             );
@@ -73,7 +74,7 @@ namespace Common.DataLayer
         {
             return sqlH.ExecuteSet(
                 CommandType.Text,
-                @"SELECT postId FROM Posts",
+                @"SELECT Id FROM Posts  order by threadname, postid",
                 null,
                 mapIds
             );
@@ -82,16 +83,16 @@ namespace Common.DataLayer
         {
             return sqlH.ExecuteSet(
                 CommandType.Text,
-                @"SELECT postId FROM Posts where NewPostContent is null",
+                @"SELECT Id FROM Posts where NewPostContent is null order by threadname, postid",
                 null,
                 mapIds
             );
         }
 
-        public IEnumerable<Post> GetPost(IEnumerable<int> postIds)
+        public IEnumerable<Post> GetPost(IEnumerable<int> ids)
         {
-            IEnumerable<int> enumerable = postIds as int[] ?? postIds.ToArray();
-            string cmd = SqlHelper.InClause(@"SELECT * FROM Posts where postId in ({0})", enumerable);
+            IEnumerable<int> enumerable = ids as int[] ?? ids.ToArray();
+            string cmd = SqlHelper.InClause(@"SELECT * FROM Posts where Id in ({0})  order by threadname, postid", enumerable);
 
             return sqlH.ExecuteSet(
                CommandType.Text,
@@ -104,14 +105,14 @@ namespace Common.DataLayer
            );
         }
 
-        public Post GetPost(int postId)
+        public Post GetPost(int id)
         {
             return sqlH.ExecuteSingle(
                 CommandType.Text,
-                @"SELECT * FROM Posts where postId = @postId",
+                @"SELECT * FROM Posts where Id = @Id",
                 c =>
                 {
-                    c.AddWithValue("@postId", postId);
+                    c.AddWithValue("@id", id);
                 },
                 mapPosts
             );
@@ -120,20 +121,6 @@ namespace Common.DataLayer
         public void Save(Post item)
         {
             string sql = @"
-
-                --UPDATE Posts
-                --SET
-                --[UserName] = @UserName
-                --,[PostContent] = @PostContent
-                --,[PostDate] = @PostDate
-                --,[ThreadName] =  @ThreadName
-                --,[NewPostContent] = @NewPostContent
-                
-                --WHERE postId = @postId
-        
-                --if (SELECT @@ROWCOUNT) = 0
-                --BEGIN
-
                 INSERT INTO [dbo].[Posts]
                 ([PostId]
                 ,[UserName]
@@ -148,7 +135,7 @@ namespace Common.DataLayer
                     ,@postDate
                     ,@threadName
                     ,@newPostContent)
-                --END
+                
                     ";
 
             sqlH.ExecuteNonQuery(
@@ -180,7 +167,7 @@ namespace Common.DataLayer
                 UPDATE Posts
                 SET                
                 [NewPostContent] = @NewPostContent                
-                WHERE postId = @postId
+                WHERE Id = @id
                     ";
 
             sqlH.ExecuteNonQuery(
@@ -188,7 +175,7 @@ namespace Common.DataLayer
                 sql,
                 c =>
                 {
-                    c.AddWithValue("@postId", item.PostId);
+                    c.AddWithValue("@id", item.Id);
                     c.AddWithValue("@newPostContent", item.NewPostContent);
                 }
             );
@@ -200,7 +187,7 @@ namespace Common.DataLayer
                 SET                
                 [NewPostId] = @NewPostId,
                 [NewThreadId] = @NewThreadId
-                WHERE postId = @postId
+                WHERE Id = @Id
                     ";
 
             sqlH.ExecuteNonQuery(
@@ -208,7 +195,7 @@ namespace Common.DataLayer
                 sql,
                 c =>
                 {
-                    c.AddWithValue("@postId", item.PostId);
+                    c.AddWithValue("@id", item.Id);
                     c.AddWithValue("@NewPostId", item.NewPostId);
                     c.AddWithValue("@NewThreadId", item.NewThreadId);
                 }

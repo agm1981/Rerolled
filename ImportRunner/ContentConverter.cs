@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -225,6 +226,15 @@ namespace ImportRunner
                 return;
             }
 
+            if (node.Name == "span")
+            {
+                foreach (HtmlNode childNode in node.ChildNodes)
+                {
+                    TreeWalker(childNode);
+                }
+                return;
+            }
+
 
             if (node.Name == "font")
             {
@@ -269,6 +279,70 @@ namespace ImportRunner
                 return;
             }
 
+            //foh style
+            if (node.Name == "div" && node.GetAttributeValue("style", null)?.Trim() == "margin:20px; margin-top:5px;")
+            {
+
+                HtmlNode separatedNode = HtmlNode.CreateNode(node.OuterHtml);
+
+                
+                string outerhtml = separatedNode.SelectSingleNode("//table").OuterHtml;
+                HtmlNode internalTable = HtmlNode.CreateNode(outerhtml);
+                HtmlNode dataNode = internalTable.SelectSingleNode("//td");
+                if (dataNode == null)
+                {
+                    throw new Exception("invalid quote");
+                }
+
+                if (dataNode.FirstChild.InnerText.Trim() == "" && dataNode.ChildNodes.Count > 1 && (dataNode.ChildNodes[1].Name == "i" || dataNode.ChildNodes[1].Name == "div") && dataNode.ChildNodes[1].InnerText.ContainsInsensitive("Originally posted by"))
+                {
+                    HtmlNode headerNode = dataNode.ChildNodes[1];
+
+                    string username = "";
+
+                    if (headerNode.Name == "i")
+                    {
+                        // i talic format
+                        if (!headerNode.InnerText.ContainsInsensitive("Originally posted by"))
+                        {
+                            throw new Exception("no un");
+                        }
+                        username = headerNode.InnerText.Replace("Originally posted by", "").Trim();
+                    }
+                    else if (headerNode.Name == "div")
+                    {
+                        // div format format
+                        if (!headerNode.InnerText.ContainsInsensitive("Originally Posted by "))
+                        {
+                            throw new Exception("no un");
+                        }
+                        username = headerNode.InnerText.Replace("Originally Posted by ", "").Trim();
+                    }
+                    if (username.IsNullOrWhiteSpace())
+                    {
+                        throw new Exception("invalid username");
+                    }
+                    data.Append($@"[QUOTE=""{username}""]");
+                    foreach (HtmlNode quote in dataNode.ChildNodes.Skip(2))
+                    {
+                        TreeWalker(quote);
+                    }
+                    data.Append("[/QUOTE]");
+                }
+                else
+                {
+                    //special case quote
+                    data.Append($@"[QUOTE]");
+                    foreach (HtmlNode quote in dataNode.ChildNodes)
+                    {
+                        TreeWalker(quote);
+                    }
+                    data.Append("[/QUOTE]");
+                }
+                return;
+            }
+
+            // rerolled style
             if (node.Name == "div" && node.GetAttributeValue("class", null) == "bbcode_container")
             {
                 // special case. here we have to dig one level to get the post by. and also skip those from the output
@@ -497,7 +571,23 @@ namespace ImportRunner
                         text = HttpUtility.HtmlDecode(node.InnerText.RemoveEndOfLineCharacter().ReplaceTabsForSingleWhiteSpace().TrimSafely());
                         data.Append(text);
                         break;
+                    //case "span":
+                    //    if (node.HasChildNodes)
+                    //    {
+                    //        foreach (HtmlNode childNode in node.ChildNodes)
+                    //        {
+                    //            TreeWalker(childNode);
+                    //        }
+                    //    }
+                    //    else
+                    //    {
+                    //        text = HttpUtility.HtmlDecode(node.InnerText.RemoveEndOfLineCharacter().ReplaceTabsForSingleWhiteSpace().TrimSafely());
+                    //        data.Append(text);
+                    //    }
+                    //    break;
 
+                    case "input":
+                        break;
                     default:
                         throw new Exception("Invalid tag " + node.Name);
                 }

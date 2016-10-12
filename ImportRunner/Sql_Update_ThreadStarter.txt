@@ -1,4 +1,25 @@
-﻿select min(postId) as MinPostId, threadName, '                                                                                                                                                                ' as UserName into #StarterPostThread from posts 
+﻿select min(postId) as MinPostId, threadName
+, '                                                                                                                                                                ' as UserName 
+into #StarterPostThread from posts 
+group by ThreadName
+
+update st
+set username = p.username
+from #StarterPostThread st 
+inner join Posts p on p.PostId = st.MinPostId and st.ThreadName = p.ThreadName
+
+update t
+set
+t.UserNameStarter = st.UserName
+from Threads t inner join #StarterPostThread st on st.ThreadName = t.ThreadName
+
+drop table #StarterPostThread
+;
+
+
+GO -- end of FOH
+
+select min(postId) as MinPostId, threadName, '                                                                                                                                                                ' as UserName into #StarterPostThread from posts 
 group by ThreadName
 
 update st
@@ -10,12 +31,6 @@ update t
 set
 t.UserNameStarter = st.UserName
 from Threads t inner join #StarterPostThread st on st.ThreadName = t.ThreadName
-
-
-
-
-
-
 
 drop table #StarterPostThread
 ;

@@ -233,7 +233,7 @@ namespace ImportRunner
 
                 string userNamePlusQuote = regexForUserNamePlusComma.Match(wholeQuote).Value;
 
-                //[QUOTE="Asmadai_sl, post: 7, member: MEMBERID"]Responseeeeee[/QUOTE]quote tesssttttttt
+                //[QUOTE="Asmadai_foh, post: 7, member: MEMBERID"]Responseeeeee[/QUOTE]quote tesssttttttt
                 string userName = userNamePlusQuote.Split('"')[1].Replace(",", string.Empty).TrimSafely();
                 string oldQuote = wholeQuote;
 

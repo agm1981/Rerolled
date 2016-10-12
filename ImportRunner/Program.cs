@@ -40,8 +40,21 @@ namespace ImportRunner
             //new PictureUrlConverter().Start();
 
             // second part 
-             // new HtmlLoader().Start(); <- done in Dtabsae already
-            //
+            // new HtmlLoader().Start(); <- done in Dtabsae already
+            // new ConvertMessages().Start();-- converrted
+
+            //new UserNameExporterToMySql().Start(); // Step 1 import Users. verify on xf_user table
+
+            //step 2 Set the thread ID manyally to 33 on sql //new ThreadExporterToMySql().AddForumId(); // Step 2 do this one to get the forum id locally. // verify on sql.Thread
+
+            // Step 3 Run the update thread starter manual SQL if you have not, verify the thread table xf_thread
+
+
+            // Step 4//
+            //new ThreadExporterToMySql().InsertAllThreads(); // verify the thread table xf_thread
+
+            // and finally
+            new PostExporterToMysql().Start();
         }
     }
 }

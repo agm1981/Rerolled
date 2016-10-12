@@ -76,7 +76,7 @@ namespace ImportRunner
             List<Thread> threads = rep.GetAllThreads().Where(c => c.NewForumId == null).ToList();
             foreach (Thread thread in threads)
             {
-                thread.NewForumId = FohList.FirstOrDefault(c => c.Value == thread.OldForumName)?.Id;
+                thread.NewForumId =33; //FohList.FirstOrDefault(c => c.Value == thread.OldForumName)?.Id;
                 if (thread.NewForumId == null)
                 {
                     continue;

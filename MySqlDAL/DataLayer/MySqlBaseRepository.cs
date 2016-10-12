@@ -5,7 +5,7 @@ namespace Common.DataLayer
         protected MySqlHelper sqlH { get; set; }
 
         protected MySqlBaseRepository()
-            : this(new MySqlHelper("server=localhost;user=root;database=xenforo;password=cmgonzalez;Protocol=pipe;PipeName=MYSQL;"))
+            : this(new MySqlHelper("server=localhost;user=root;database=xenforo;password=cmgonzalez;"))
         {
         }
 
